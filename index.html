@@ -166,12 +166,10 @@
                 <div class="goals-view" id="goalsView">
                     <div class="goals-header">
                         <div class="goals-header-text">
-                            <div class="eyebrow-row goals-eyebrow">
-                                <span class="eyebrow-txt">Direction</span>
-                            </div>
-                            <h2 class="goals-title heading-m" id="goalsPlanTitle">Goals</h2>
-                            <p class="goals-range body-s" id="goalsPlanRange">Quarterly milestones for the next three
-                                months.</p>
+                            <span class="goals-eyebrow-txt">Direction</span>
+                            <h2 class="goals-title" id="goalsPlanTitle">Goals &amp; Plan</h2>
+                            <p class="goals-range" id="goalsPlanRange">Quarterly milestones and your day-by-day plan for
+                                the next two months.</p>
                         </div>
                         <div class="goals-progress" aria-label="Milestone progress">
                             <div class="goals-progress-copy">
@@ -188,20 +186,33 @@
                             </div>
                         </div>
                     </div>
-                    <div class="goals-section-head">
-                        <span class="goals-section-icon" aria-hidden="true"><i data-lucide="flag"></i></span>
-                        <div class="goals-section-copy">
-                            <h3 class="goals-section-title">3-month milestones</h3>
-                            <p class="goals-section-sub">This quarter</p>
+
+                    <div class="goals-section">
+                        <div class="goals-section-head">
+                            <span class="goals-section-icon" aria-hidden="true"><i data-lucide="flag"></i></span>
+                            <div class="goals-section-copy">
+                                <h3 class="goals-section-title">3-month milestones</h3>
+                                <p class="goals-section-sub">This quarter</p>
+                            </div>
                         </div>
+                        <div class="goals-grid" id="goalsGrid"></div>
+                        <form class="goals-quick-add" id="goalsQuickAddForm" autocomplete="off">
+                            <i data-lucide="plus"></i>
+                            <input id="goalsQuickAddInput" type="text" maxlength="200" placeholder="Add a goal…" />
+                        </form>
                     </div>
-                    <div class="goals-grid" id="goalsGrid">
-                        <!-- 3 month cards rendered by JS -->
+
+                    <div class="goals-section">
+                        <div class="goals-section-head">
+                            <span class="goals-section-icon" aria-hidden="true"><i
+                                    data-lucide="calendar-days"></i></span>
+                            <div class="goals-section-copy">
+                                <h3 class="goals-section-title">This week</h3>
+                                <p class="goals-section-sub">Monday through Sunday</p>
+                            </div>
+                        </div>
+                        <div class="week-plan" id="weekPlan"></div>
                     </div>
-                    <form class="goals-quick-add" id="goalsQuickAddForm" autocomplete="off">
-                        <i data-lucide="plus"></i>
-                        <input id="goalsQuickAddInput" type="text" maxlength="200" placeholder="Add a goal…" />
-                    </form>
                 </div>
             </section>
         </main>

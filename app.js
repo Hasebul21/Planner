@@ -126,8 +126,8 @@ function saveGoals() {
 function loadGoals() {
     try {
         const raw = localStorage.getItem(GOALS_KEY);
-        return raw ? JSON.parse(raw) : [];
-    } catch (e) { return []; }
+        return migrateGoals(raw ? JSON.parse(raw) : null);
+    } catch (e) { return defaultGoals(); }
 }
 
 // ============== CLOUD SYNC ==============
@@ -164,8 +164,8 @@ function applyCloudState(data) {
             state.tweaks = { ...DEFAULT_TWEAKS, ...data.tweaks };
             try { localStorage.setItem(TWEAKS_KEY, JSON.stringify(state.tweaks)); } catch (e) { }
         }
-        if (Array.isArray(data.goals)) {
-            state.goals = data.goals;
+        if (data.goals !== undefined) {
+            state.goals = migrateGoals(data.goals);
             try { localStorage.setItem(GOALS_KEY, JSON.stringify(state.goals)); } catch (e) { }
         }
         applyTweaks();
@@ -430,11 +430,94 @@ function renderTodo() {
 }
 
 // ============== GOALS ==============
+function defaultGoals() {
+    const now = new Date();
+    const stamp = now.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+    return {
+        threeMonth: [
+            {
+                id: uid(), tag: 'Platform', target: stamp,
+                text: 'Cut average deploy time under 10 minutes',
+                milestones: [
+                    { id: uid(), text: 'Parallelize the CI pipeline', done: true },
+                    { id: uid(), text: 'Cache dependencies', done: false },
+                    { id: uid(), text: 'Remove flaky tests', done: false },
+                ],
+                created: Date.now(),
+            },
+            {
+                id: uid(), tag: 'Craft', target: stamp,
+                text: 'Establish the architecture guild',
+                milestones: [
+                    { id: uid(), text: 'Write the charter', done: true },
+                    { id: uid(), text: 'Set a biweekly cadence', done: true },
+                    { id: uid(), text: 'Publish the first RFC', done: false },
+                ],
+                created: Date.now(),
+            },
+        ],
+        weekPlan: { weekStart: null, days: [] },
+    };
+}
+
+function migrateGoals(raw) {
+    // Legacy: array of {id, monthOffset, text, done} → reset to defaults
+    if (Array.isArray(raw)) return defaultGoals();
+    if (!raw || typeof raw !== 'object') return defaultGoals();
+    const out = {
+        threeMonth: Array.isArray(raw.threeMonth) ? raw.threeMonth.map(g => ({
+            id: g.id || uid(),
+            tag: g.tag || 'Platform',
+            target: g.target || '',
+            text: String(g.text || ''),
+            milestones: Array.isArray(g.milestones) ? g.milestones.map(m => ({
+                id: m.id || uid(), text: String(m.text || ''), done: !!m.done,
+            })) : [],
+            created: g.created || Date.now(),
+        })) : defaultGoals().threeMonth,
+        weekPlan: (raw.weekPlan && typeof raw.weekPlan === 'object')
+            ? { weekStart: raw.weekPlan.weekStart || null, days: Array.isArray(raw.weekPlan.days) ? raw.weekPlan.days : [] }
+            : { weekStart: null, days: [] },
+    };
+    return out;
+}
+
+function startOfWeekMonday(d) {
+    const r = new Date(d);
+    const day = r.getDay(); // 0=Sun..6=Sat
+    const diff = day === 0 ? -6 : 1 - day;
+    r.setDate(r.getDate() + diff);
+    r.setHours(0, 0, 0, 0);
+    return r;
+}
+
+function ensureWeekPlan() {
+    const monday = startOfWeekMonday(new Date());
+    const wkStart = isoDate(monday);
+    const wp = state.goals.weekPlan || { weekStart: null, days: [] };
+    if (wp.weekStart === wkStart && Array.isArray(wp.days) && wp.days.length === 7) return;
+    const dows = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+        const dt = addDays(monday, i);
+        const iso = isoDate(dt);
+        const existing = wp.days?.find(d => d.iso === iso);
+        days.push({
+            id: existing?.id || uid(),
+            iso,
+            dow: dows[i],
+            date: dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+            plan: existing?.plan || '',
+            done: !!existing?.done,
+        });
+    }
+    state.goals.weekPlan = { weekStart: wkStart, days };
+}
+
 function goalMonthInfo(offset) {
     const now = new Date();
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
     const monthName = d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-    // Range: 1st → last day of that month
     const last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
     const fmt = (dt) => dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     return { monthName, range: `${fmt(d)} – ${fmt(last)}` };
@@ -443,109 +526,179 @@ function goalMonthInfo(offset) {
 function renderGoals() {
     const grid = $('#goalsGrid');
     if (!grid) return;
+    ensureWeekPlan();
 
-    const start = new Date(); start.setDate(1);
     const titleEl = $('#goalsPlanTitle');
     const rangeEl = $('#goalsPlanRange');
-    if (titleEl) titleEl.textContent = 'Goals';
-    if (rangeEl) rangeEl.textContent = 'Quarterly milestones for the next three months.';
+    if (titleEl) titleEl.textContent = 'Goals & Plan';
+    if (rangeEl) rangeEl.textContent = 'Quarterly milestones and your day-by-day plan for the next two months.';
 
-    const totalGoals = state.goals.length;
-    const totalDone = state.goals.filter(g => g.done).length;
-    const pct = totalGoals ? Math.round((totalDone / totalGoals) * 100) : 0;
+    const goals = state.goals.threeMonth || [];
+    const allMs = goals.reduce((acc, g) => acc.concat(g.milestones || []), []);
+    const totalDone = allMs.filter(m => m.done).length;
+    const totalAll = allMs.length;
+    const pct = totalAll ? Math.round((totalDone / totalAll) * 100) : 0;
     const pctEl = $('#goalsPct');
     const fracEl = $('#goalsFrac');
     const ringEl = $('#goalsRingFill');
     if (pctEl) pctEl.textContent = `${pct}%`;
-    if (fracEl) fracEl.textContent = `${totalDone}/${totalGoals}`;
+    if (fracEl) fracEl.textContent = `${totalDone}/${totalAll}`;
     if (ringEl) ringEl.setAttribute('stroke-dasharray', `${pct} ${100 - pct}`);
 
-    grid.innerHTML = [0, 1, 2].map(offset => {
-        const { monthName } = goalMonthInfo(offset);
-        const items = state.goals.filter(g => g.monthOffset === offset);
-        const doneCount = items.filter(g => g.done).length;
-        const monthDate = new Date(start.getFullYear(), start.getMonth() + offset, 1);
-        const pillLabel = offset === 0 ? 'Platform' : offset === 1 ? 'Craft' : 'Stretch';
-        const stamp = monthDate.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-        const cardPct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
-        const rows = items.map(g => `
-            <li class="goal-item ${g.done ? 'is-done' : ''}" data-goal-id="${g.id}">
-                <button class="goal-check" data-gact="toggle" aria-label="Toggle goal">
-                    <i data-lucide="${g.done ? 'check-circle-2' : 'circle'}"></i>
+    grid.innerHTML = goals.map(g => {
+        const ms = g.milestones || [];
+        const doneCount = ms.filter(m => m.done).length;
+        const cardPct = ms.length ? Math.round((doneCount / ms.length) * 100) : 0;
+        const rows = ms.map(m => `
+            <li class="goal-item ${m.done ? 'is-done' : ''}" data-ms-id="${m.id}">
+                <button class="goal-check" data-gact="toggle-ms" aria-label="Toggle milestone">
+                    <i data-lucide="check"></i>
                 </button>
-                <span class="goal-text">${escapeHtml(g.text)}</span>
-                <button class="goal-del" data-gact="delete" aria-label="Delete goal">
+                <span class="goal-text">${escapeHtml(m.text)}</span>
+                <button class="goal-del" data-gact="delete-ms" aria-label="Delete milestone">
                     <i data-lucide="x"></i>
                 </button>
             </li>`).join('');
 
-        const emptyRow = items.length === 0
-            ? `<li class="goal-empty">No milestones yet</li>`
-            : '';
-
         return `
-        <section class="card goal-card" data-month-offset="${offset}">
+        <section class="goal-card" data-goal-id="${g.id}">
             <header class="goal-card-head">
-                <div class="goal-card-head-top">
-                    <div class="goal-meta">
-                        <span class="goal-badge">${pillLabel}</span>
-                        <span class="goal-stamp"><i data-lucide="flag"></i>${stamp}</span>
-                    </div>
-                </div>
-                <div class="goal-card-head-text">
-                    <h3 class="goal-month">${monthName}</h3>
-                    <span class="goal-range">${doneCount} of ${items.length} milestones</span>
-                </div>
-                <div class="goal-progress-row">
-                    <span class="goal-progress-label">${doneCount} of ${items.length} milestones</span>
-                    <span class="goal-progress-pct tabular">${cardPct}%</span>
-                </div>
-                <div class="goal-progress-bar" aria-hidden="true"><i style="width:${cardPct}%"></i></div>
+                <span class="goal-badge">${escapeHtml(g.tag || 'Platform')}</span>
+                <span class="goal-stamp"><i data-lucide="flag"></i>${escapeHtml(g.target || '')}</span>
+                <button class="goal-card-del" data-gact="delete-goal" aria-label="Delete goal"><i data-lucide="x"></i></button>
             </header>
-            <ul class="goal-list">${rows}${emptyRow}</ul>
-            <form class="goal-add-form" data-offset="${offset}" autocomplete="off">
+            <h3 class="goal-card-title">${escapeHtml(g.text)}</h3>
+            <div class="goal-progress-row">
+                <span class="goal-progress-label">${doneCount} of ${ms.length} milestones</span>
+                <span class="goal-progress-pct tabular">${cardPct}%</span>
+            </div>
+            <div class="goal-progress-bar" aria-hidden="true"><i style="width:${cardPct}%"></i></div>
+            <ul class="goal-list">${rows}</ul>
+            <form class="goal-add-form" data-goal-id="${g.id}" autocomplete="off">
                 <i data-lucide="plus"></i>
                 <input type="text" class="goal-add-input" maxlength="200" placeholder="Add a milestone" />
             </form>
         </section>`;
     }).join('');
+
+    renderWeekPlan();
+}
+
+function renderWeekPlan() {
+    const host = $('#weekPlan');
+    if (!host) return;
+    const wp = state.goals.weekPlan;
+    if (!wp) { host.innerHTML = ''; return; }
+    const days = wp.days || [];
+    const done = days.filter(d => d.done).length;
+    const first = days[0]?.date || '';
+    const last = days[days.length - 1]?.date || '';
+    const range = first && last ? `${first} – ${last}` : '';
+
+    const dayCells = days.map(d => `
+        <div class="week-day ${d.done ? 'is-done' : ''}" data-day-iso="${d.iso}">
+            <div class="week-day-head">
+                <button class="goal-check" data-wact="toggle-day" aria-label="Toggle day done">
+                    <i data-lucide="check"></i>
+                </button>
+                <span class="week-day-dow">${escapeHtml(d.dow)}</span>
+            </div>
+            <span class="week-day-date">${escapeHtml(d.date)}</span>
+            <textarea class="week-day-plan" data-wact="edit-plan" rows="2" placeholder="No plan" maxlength="160">${escapeHtml(d.plan || '')}</textarea>
+        </div>`).join('');
+
+    host.innerHTML = `
+        <article class="week-card">
+            <header class="week-card-head">
+                <div>
+                    <h3 class="week-card-title">This week</h3>
+                    <div class="week-card-range">${escapeHtml(range)}</div>
+                </div>
+                <span class="week-card-count">${done}/${days.length}</span>
+            </header>
+            <div class="week-card-divider"></div>
+            <div class="week-day-grid">${dayCells}</div>
+        </article>`;
 }
 
 function wireGoalEvents() {
     const grid = $('#goalsGrid');
-    if (!grid) return;
+    if (grid && !grid.dataset.bound) {
+        grid.dataset.bound = 'true';
 
-    // Delegate clicks on goal items
-    grid.addEventListener('click', e => {
-        const li = e.target.closest('[data-goal-id]');
-        if (!li) return;
-        const id = li.dataset.goalId;
-        const act = e.target.closest('[data-gact]')?.dataset.gact;
-        if (!act) return;
-        if (act === 'toggle') {
-            const g = state.goals.find(x => x.id === id);
-            if (g) { g.done = !g.done; saveGoals(); renderGoals(); refreshIcons(); }
-        }
-        if (act === 'delete') {
-            state.goals = state.goals.filter(x => x.id !== id);
+        grid.addEventListener('click', e => {
+            const card = e.target.closest('[data-goal-id]');
+            if (!card) return;
+            const goalId = card.dataset.goalId;
+            const goal = state.goals.threeMonth.find(g => g.id === goalId);
+            if (!goal) return;
+            const act = e.target.closest('[data-gact]')?.dataset.gact;
+            if (!act) return;
+
+            if (act === 'delete-goal') {
+                state.goals.threeMonth = state.goals.threeMonth.filter(g => g.id !== goalId);
+                saveGoals(); renderGoals(); refreshIcons();
+                return;
+            }
+
+            const li = e.target.closest('[data-ms-id]');
+            if (!li) return;
+            const msId = li.dataset.msId;
+            if (act === 'toggle-ms') {
+                const m = goal.milestones.find(x => x.id === msId);
+                if (m) { m.done = !m.done; saveGoals(); renderGoals(); refreshIcons(); }
+            } else if (act === 'delete-ms') {
+                goal.milestones = goal.milestones.filter(x => x.id !== msId);
+                saveGoals(); renderGoals(); refreshIcons();
+            }
+        });
+
+        grid.addEventListener('submit', e => {
+            const form = e.target.closest('.goal-add-form');
+            if (!form) return;
+            e.preventDefault();
+            const goalId = form.dataset.goalId;
+            const goal = state.goals.threeMonth.find(g => g.id === goalId);
+            if (!goal) return;
+            const input = form.querySelector('.goal-add-input');
+            const text = input?.value.trim();
+            if (!text) return;
+            goal.milestones.push({ id: uid(), text, done: false });
             saveGoals(); renderGoals(); refreshIcons();
-        }
-    });
+            const newForm = document.querySelector(`.goal-add-form[data-goal-id="${goalId}"] .goal-add-input`);
+            newForm?.focus();
+        });
+    }
 
-    // Delegate submit on add forms
-    grid.addEventListener('submit', e => {
-        const form = e.target.closest('.goal-add-form');
-        if (!form) return;
-        e.preventDefault();
-        const input = form.querySelector('.goal-add-input');
-        const text = input?.value.trim();
-        if (!text) return;
-        const offset = Number(form.dataset.offset);
-        state.goals.push({ id: uid(), monthOffset: offset, text, done: false, created: Date.now() });
-        saveGoals(); renderGoals(); refreshIcons();
-        input.value = '';
-        input.focus();
-    });
+    const week = $('#weekPlan');
+    if (week && !week.dataset.bound) {
+        week.dataset.bound = 'true';
+
+        week.addEventListener('click', e => {
+            const cell = e.target.closest('[data-day-iso]');
+            if (!cell) return;
+            const act = e.target.closest('[data-wact]')?.dataset.wact;
+            if (act !== 'toggle-day') return;
+            const iso = cell.dataset.dayIso;
+            const d = state.goals.weekPlan?.days?.find(x => x.iso === iso);
+            if (!d) return;
+            d.done = !d.done;
+            saveGoals(); renderWeekPlan(); refreshIcons();
+        });
+
+        let planTimer;
+        week.addEventListener('input', e => {
+            const ta = e.target.closest('.week-day-plan');
+            if (!ta) return;
+            const cell = ta.closest('[data-day-iso]');
+            const iso = cell?.dataset.dayIso;
+            const d = state.goals.weekPlan?.days?.find(x => x.iso === iso);
+            if (!d) return;
+            d.plan = ta.value;
+            clearTimeout(planTimer);
+            planTimer = setTimeout(saveGoals, 300);
+        });
+    }
 
     const quickForm = $('#goalsQuickAddForm');
     if (quickForm && !quickForm.dataset.bound) {
@@ -555,12 +708,17 @@ function wireGoalEvents() {
             const input = $('#goalsQuickAddInput');
             const text = input?.value.trim();
             if (!text) return;
-            state.goals.push({ id: uid(), monthOffset: 0, text, done: false, created: Date.now() });
+            const stamp = new Date().toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+            const tags = ['Platform', 'Craft', 'Stretch'];
+            const used = (state.goals.threeMonth || []).map(g => g.tag);
+            const tag = tags.find(t => !used.includes(t)) || 'Stretch';
+            state.goals.threeMonth = state.goals.threeMonth || [];
+            state.goals.threeMonth.push({
+                id: uid(), tag, target: stamp, text,
+                milestones: [], created: Date.now(),
+            });
             saveGoals(); renderGoals(); refreshIcons();
-            if (input) {
-                input.value = '';
-                input.focus();
-            }
+            if (input) { input.value = ''; input.focus(); }
         });
     }
 }

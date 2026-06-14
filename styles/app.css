@@ -1111,36 +1111,40 @@
     max-width: 700px;
 }
 
-.goals-eyebrow {
-    margin-bottom: 0;
-}
-
-.goals-eyebrow .eyebrow-txt {
+.goals-eyebrow-txt {
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 12px;
-    letter-spacing: 0;
-    text-transform: none;
+    font-size: 13px;
     font-weight: 600;
     color: var(--acc);
+    letter-spacing: 0.01em;
+    margin-bottom: 6px;
+    display: block;
 }
 
 .goals-title {
     font-family: 'Newsreader', 'Cormorant Garamond', Georgia, serif;
     font-style: normal;
-    font-weight: 600;
-    font-size: clamp(2.5rem, 3vw, 3.35rem);
+    font-weight: 700;
+    font-size: clamp(2.4rem, 3vw, 3rem);
     color: var(--fg);
     margin: 0;
-    line-height: 0.96;
-    letter-spacing: -0.03em;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
 }
 
 .goals-range {
     font-family: 'Inter', 'Segoe UI', sans-serif;
     font-size: 15px;
-    line-height: 1.45;
+    line-height: 1.5;
     color: var(--fg-muted);
-    max-width: 54ch;
+    max-width: 60ch;
+    margin: 8px 0 0;
+}
+
+.goals-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .goals-progress {
@@ -1256,93 +1260,95 @@
 .goals-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    gap: 20px;
     align-items: start;
 }
 
+/* ===== Goal card ===== */
 .goal-card {
-    padding: 16px 16px 14px;
-    gap: 14px;
+    padding: 20px 22px 18px;
     display: flex;
     flex-direction: column;
-    border-radius: 14px;
+    gap: 14px;
+    border-radius: var(--rad);
     border: 1px solid var(--line);
     background: var(--card);
     box-shadow: none;
+    position: relative;
 }
 
 .goal-card-head {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.goal-card-head-top {
-    display: flex;
     align-items: center;
-    gap: 16px;
-}
-
-.goal-meta {
-    display: flex;
-    align-items: center;
+    gap: 10px;
     flex-wrap: wrap;
-    gap: 8px;
 }
 
 .goal-badge {
     display: inline-flex;
     align-items: center;
-    height: 20px;
-    padding: 0 9px;
+    height: 22px;
+    padding: 0 12px;
     border-radius: 999px;
     background: var(--acc-soft);
     color: var(--acc);
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
 }
 
 .goal-stamp {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--fg-faint);
 }
 
 .goal-stamp svg {
     width: 12px;
     height: 12px;
+    stroke-width: 1.75;
 }
 
-.goal-card-head-text {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+.goal-card-del {
+    margin-left: auto;
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-faint);
+    opacity: 0;
+    transition: opacity 160ms ease, color 160ms ease, background 160ms ease;
 }
 
-.goal-kicker {
-    color: var(--fg-muted);
+.goal-card:hover .goal-card-del {
+    opacity: 1;
 }
 
-.goal-month {
+.goal-card-del:hover {
+    color: var(--cefalo-rust);
+    background: var(--card-2);
+}
+
+.goal-card-del svg {
+    width: 13px;
+    height: 13px;
+}
+
+.goal-card-title {
     font-family: 'Newsreader', 'Cormorant Garamond', Georgia, serif;
     font-style: normal;
-    font-weight: 600;
-    font-size: 0.98rem;
-    color: var(--fg);
-    margin: 0;
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1.25;
     letter-spacing: -0.01em;
-    line-height: 1.15;
-}
-
-.goal-range {
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 11px;
-    line-height: 1.3;
-    color: var(--fg-muted);
+    color: var(--fg);
+    margin: 2px 0 4px;
 }
 
 .goal-progress-row {
@@ -1352,15 +1358,17 @@
     gap: 12px;
 }
 
-.goal-progress-label,
-.goal-progress-pct {
+.goal-progress-label {
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 12.5px;
+    font-weight: 500;
     color: var(--fg-muted);
 }
 
 .goal-progress-pct {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
     color: var(--acc);
     font-variant-numeric: tabular-nums;
 }
@@ -1378,65 +1386,64 @@
     height: 100%;
     background: var(--acc);
     border-radius: inherit;
+    transition: width 500ms ease;
 }
 
 .goal-list {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 2px;
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 4px 0 0;
 }
 
 .goal-item {
     display: grid;
-    grid-template-columns: 24px 1fr 24px;
+    grid-template-columns: 22px 1fr 22px;
     align-items: center;
-    gap: 8px;
-    padding: 6px 0;
-    border-top: 0;
-    transition: background 140ms ease, border-color 160ms ease;
-}
-
-.goal-item:hover {
-    background: transparent;
+    gap: 12px;
+    padding: 5px 0;
+    transition: background 140ms ease;
 }
 
 .goal-check {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    border: 1.5px solid var(--line);
+    background: var(--bg-elev);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--fg-faint);
-    border-radius: 999px;
-    transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
-    border: 1px solid var(--fg-faint);
+    color: transparent;
+    transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+    flex: none;
 }
 
 .goal-check svg {
-    width: 10px;
-    height: 10px;
+    width: 13px;
+    height: 13px;
+    stroke-width: 2.5;
 }
 
 .goal-check:hover {
-    color: var(--acc);
     border-color: var(--acc);
     background: var(--acc-soft);
 }
 
 .goal-item.is-done .goal-check {
-    color: var(--cefalo-paper);
     background: var(--acc);
     border-color: var(--acc);
+    color: var(--acc-ink);
 }
 
 .goal-text {
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 500;
     color: var(--fg);
-    line-height: 1.35;
+    line-height: 1.4;
     word-break: break-word;
 }
 
@@ -1446,14 +1453,14 @@
 }
 
 .goal-del {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: var(--fg-faint);
     border-radius: 6px;
-    transition: color 160ms ease, background 160ms ease;
+    transition: color 160ms ease, background 160ms ease, opacity 160ms ease;
     opacity: 0;
 }
 
@@ -1462,8 +1469,8 @@
 }
 
 .goal-del svg {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
 }
 
 .goal-del:hover {
@@ -1473,27 +1480,22 @@
 
 .goal-empty {
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--fg-faint);
-    padding: 10px 0 4px;
+    padding: 8px 0 4px;
     list-style: none;
 }
 
 .goal-add-form {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 0;
+    gap: 10px;
+    padding: 6px 0 0;
     border-radius: 0;
     border: 0;
     background: transparent;
-    transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, transform 120ms ease;
     cursor: text;
     margin-top: 2px;
-}
-
-.goal-add-form:focus-within {
-    box-shadow: none;
 }
 
 .goal-add-form svg {
@@ -1508,7 +1510,7 @@
     border: 0;
     outline: 0;
     background: transparent;
-    font-size: 12px;
+    font-size: 13.5px;
     color: var(--fg-muted);
     width: 100%;
 }
@@ -1517,33 +1519,40 @@
     color: var(--fg-faint);
 }
 
+/* ===== Add-a-goal quick add (dashed pill) ===== */
 .goals-quick-add {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 0 14px;
-    height: 42px;
-    max-width: 350px;
-    border-radius: 12px;
+    gap: 10px;
+    padding: 0 16px;
+    height: 44px;
+    max-width: 420px;
+    border-radius: 10px;
     border: 1px dashed var(--line);
     color: var(--fg-faint);
     background: transparent;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.goals-quick-add:hover {
+    border-color: color-mix(in srgb, var(--acc) 40%, var(--line));
 }
 
 .goals-quick-add:focus-within {
     border-color: var(--acc);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 12%, transparent);
+    box-shadow: 0 0 0 4px var(--acc-soft);
 }
 
 .goals-quick-add svg {
     width: 14px;
     height: 14px;
     color: var(--fg-faint);
+    flex: none;
 }
 
 .goals-quick-add input {
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 13px;
+    font-size: 13.5px;
     border: 0;
     outline: 0;
     background: transparent;
@@ -1553,6 +1562,160 @@
 
 .goals-quick-add input::placeholder {
     color: var(--fg-faint);
+}
+
+/* ===== Week plan ===== */
+.week-plan {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.week-card {
+    background: var(--card);
+    border: 1px solid var(--acc);
+    border-radius: var(--rad);
+    padding: 20px 22px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.week-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.week-card-title {
+    font-family: 'Newsreader', 'Cormorant Garamond', Georgia, serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--acc);
+    line-height: 1.1;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.week-card-range {
+    font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+    font-size: 12px;
+    color: var(--fg-faint);
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.week-card-count {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.week-card-divider {
+    height: 1px;
+    background: var(--line-soft);
+    margin: 0;
+}
+
+.week-day-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.week-day {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 12px 14px;
+    border-radius: 12px;
+    background: var(--bg);
+    border: 1px solid transparent;
+    min-height: 110px;
+    transition: background 160ms ease, border-color 160ms ease;
+}
+
+.week-day:hover {
+    border-color: var(--line);
+}
+
+.week-day-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.week-day-dow {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--fg);
+    letter-spacing: 0;
+}
+
+.week-day-date {
+    font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+    font-size: 11px;
+    color: var(--fg-faint);
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+    margin-bottom: 6px;
+}
+
+.week-day .goal-check {
+    width: 16px;
+    height: 16px;
+    border-radius: 5px;
+    border-width: 1.5px;
+}
+
+.week-day .goal-check svg {
+    width: 10px;
+    height: 10px;
+}
+
+.week-day.is-done .goal-check {
+    background: var(--acc);
+    border-color: var(--acc);
+    color: var(--acc-ink);
+}
+
+.week-day-plan {
+    font-family: 'Newsreader', 'Cormorant Garamond', Georgia, serif;
+    font-size: 13.5px;
+    line-height: 1.35;
+    color: var(--fg);
+    background: transparent;
+    border: 0;
+    outline: 0;
+    padding: 4px 0;
+    resize: none;
+    width: 100%;
+    flex: 1;
+    word-break: break-word;
+    font-weight: 500;
+}
+
+.week-day-plan::placeholder {
+    color: var(--fg-faint);
+    font-style: italic;
+}
+
+.week-day.is-done .week-day-plan {
+    color: var(--fg-faint);
+    text-decoration: line-through;
+    text-decoration-color: var(--fg-faint);
+}
+
+@media (max-width: 1100px) {
+    .week-day-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 900px) {
@@ -1574,7 +1737,11 @@
     }
 
     .goal-card {
-        padding: 18px 16px 16px;
+        padding: 18px 18px 16px;
+    }
+
+    .week-day-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .goals-quick-add {
