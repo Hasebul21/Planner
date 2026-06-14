@@ -23,8 +23,25 @@
 </head>
 
 <body>
+    <!-- ============== AUTH GATE ============== -->
+    <div class="auth-gate" id="authGate" aria-hidden="true">
+        <div class="auth-gate-card">
+            <div class="auth-gate-brand">
+                <span class="brand-stack" aria-hidden="true">
+                    <i style="background:var(--cefalo-green)"></i>
+                    <i style="background:var(--cefalo-cyan)"></i>
+                    <i style="background:var(--cefalo-navy)"></i>
+                </span>
+                <span class="auth-gate-name">Planner</span>
+            </div>
+            <h1 class="auth-gate-title">Your day, organised.</h1>
+            <p class="auth-gate-sub">Sign in to access your tasks, notes, and sync across devices.</p>
+            <div class="auth-gate-actions" id="authGateActions"></div>
+        </div>
+    </div>
+
     <div class="app" id="app" data-theme="light" data-accent="cyan" data-density="regular" data-radius="soft"
-        data-head="aesthetic">
+        data-head="aesthetic" hidden>
 
         <!-- ============== TOP APP BAR ============== -->
         <header class="appbar" role="banner">
@@ -46,6 +63,23 @@
                 </button>
             </nav>
 
+            <!-- Date + progress in the appbar centre -->
+            <div class="appbar-center" id="appbarCenter">
+                <div class="ab-day-nav">
+                    <button class="icon-btn round" id="dayPrev" aria-label="Previous day"><i data-lucide="chevron-left"></i></button>
+                    <span class="ab-date" id="pageDate">—</span>
+                    <button class="icon-btn round" id="dayNext" aria-label="Next day"><i data-lucide="chevron-right"></i></button>
+                </div>
+                <div class="ab-progress">
+                    <svg viewBox="0 0 36 36" class="ab-ring" aria-hidden="true">
+                        <circle class="dp-track" cx="18" cy="18" r="15.915"/>
+                        <circle class="dp-fill" cx="18" cy="18" r="15.915" id="dpFill" stroke-dasharray="0 100"/>
+                    </svg>
+                    <span class="ab-pct tabular" id="dpPct">0%</span>
+                    <span class="ab-frac tabular" id="dpFrac">0/0</span>
+                </div>
+            </div>
+
             <div class="appbar-actions">
                 <button class="icon-btn appbar-bell" id="bellBtn" aria-label="Notifications">
                     <i data-lucide="bell"></i>
@@ -61,34 +95,6 @@
         <main class="page" role="main">
             <!-- View: TODAY -->
             <section class="view view-today" data-view="today">
-                <header class="page-head">
-                    <div class="page-head-text">
-                        <span class="greet" id="greet">Good afternoon, Sofia</span>
-                        <h1 class="page-title heading-l" id="pageTitle">Today</h1>
-                        <p class="page-date body-s" id="pageDate">—</p>
-                    </div>
-                    <div class="page-head-meta">
-                        <div class="day-prog-text">
-                            <span class="dp-label">Day progress</span>
-                            <strong class="dp-pct tabular" id="dpPct">0%</strong>
-                        </div>
-                        <div class="day-ring" aria-hidden="true">
-                            <svg viewBox="0 0 36 36" class="dp-svg">
-                                <circle class="dp-track" cx="18" cy="18" r="15.915" />
-                                <circle class="dp-fill" cx="18" cy="18" r="15.915" id="dpFill"
-                                    stroke-dasharray="0 100" />
-                            </svg>
-                            <span class="dp-frac tabular" id="dpFrac">0/0</span>
-                        </div>
-                        <div class="head-nav">
-                            <button class="icon-btn round" id="dayPrev" aria-label="Previous day"><i
-                                    data-lucide="chevron-left"></i></button>
-                            <button class="icon-btn round" id="dayNext" aria-label="Next day"><i
-                                    data-lucide="chevron-right"></i></button>
-                        </div>
-                    </div>
-                </header>
-
                 <div class="page-grid">
                     <!-- LEFT RAIL -->
                     <aside class="rail">

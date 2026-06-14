@@ -162,7 +162,11 @@ let _cloudUnsub = null;
 async function onAuthChange(user) {
     if (_cloudUnsub) { _cloudUnsub(); _cloudUnsub = null; }
     updateAuthUI(user);
-    if (!user) return;
+    if (!user) {
+        showAuthGate();
+        return;
+    }
+    hideAuthGate();
     // First sign-in on this device: try cloud → if empty, push local
     const cloud = await loadCloudState(user.uid);
     if (cloud && (Array.isArray(cloud.tasks) || typeof cloud.notes === 'string')) {
@@ -177,8 +181,67 @@ async function onAuthChange(user) {
     }
     // Subscribe to live changes (other devices/tabs)
     _cloudUnsub = watchCloudState(user.uid, (data) => {
-        // Skip echoes of our own writes by comparing updatedAt timestamps roughly
         applyCloudState(data);
+    });
+}
+
+function showAuthGate() {
+    const gate = $('#authGate');
+    const app = $('#app');
+    if (gate) gate.removeAttribute('aria-hidden');
+    if (app) app.hidden = true;
+    renderGateButtons();
+    refreshIcons();
+}
+
+function hideAuthGate() {
+    const gate = $('#authGate');
+    const app = $('#app');
+    if (gate) gate.setAttribute('aria-hidden', 'true');
+    if (app) app.hidden = false;
+}
+
+function renderGateButtons() {
+    const container = $('#authGateActions');
+    if (!container) return;
+    container.innerHTML = `
+        <button class="btn btn-primary auth-google" id="gateGoogleBtn">
+            <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
+                <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
+                <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.4 4 9.8 8.3 6.3 14.7z"/>
+                <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.5-5.2l-6.2-5.2C29.2 35 26.8 36 24 36c-5.3 0-9.7-3.1-11.3-8l-6.5 5C9.6 39.6 16.3 44 24 44z"/>
+                <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.4 4.4-4.5 5.6l6.2 5.2C40.6 35.6 44 30.3 44 24c0-1.3-.1-2.4-.4-3.5z"/>
+            </svg>
+            <span>Continue with Google</span>
+        </button>
+        <div class="auth-divider"><span>or</span></div>
+        <form id="gateEmailForm" class="auth-email">
+            <input type="email" id="gateEmailInput" placeholder="you@example.com" required autocomplete="email" />
+            <button class="btn btn-secondary" type="submit">
+                <i data-lucide="mail"></i><span>Email me a sign-in link</span>
+            </button>
+        </form>
+    `;
+    refreshIcons();
+    $('#gateGoogleBtn').addEventListener('click', async () => {
+        try {
+            await signInGoogle();
+        } catch (e) {
+            console.error(e);
+            toast(e?.code === 'auth/popup-closed-by-user' ? 'Cancelled' : 'Sign-in failed');
+        }
+    });
+    $('#gateEmailForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = $('#gateEmailInput').value.trim();
+        if (!email) return;
+        try {
+            await sendEmailLink(email);
+            container.innerHTML = `<p style="text-align:center;color:var(--fg-muted);font-size:14px;padding:8px 0;">Check <strong>${escapeHtml(email)}</strong> for a sign-in link.</p>`;
+        } catch (err) {
+            console.error(err);
+            toast('Could not send link — check Firebase auth settings');
+        }
     });
 }
 
@@ -271,12 +334,10 @@ function renderAll() {
 }
 
 function renderHead() {
-    const now = new Date();
-    $('#greet').textContent = `${greetingFor(now)}, Sofia`;
     const sel = parseISO(state.selectedDate) || new Date();
     const isToday = sameDay(sel, new Date());
-    $('#pageTitle').textContent = isToday ? 'Today' : sel.toLocaleDateString(undefined, { weekday: 'long' });
-    $('#pageDate').textContent = fmtLongDate(sel);
+    const dateLabel = isToday ? 'Today, ' + fmtLongDate(sel) : fmtLongDate(sel);
+    $('#pageDate').textContent = dateLabel;
 
     // Day progress
     const todays = tasksForSelectedDate();
@@ -801,9 +862,15 @@ applyTweaks();
 wireEvents();
 renderAll();
 
-// Avatar → sign-in modal
+// Show gate immediately — Firebase will call onAuthChange once it resolves
+showAuthGate();
+
+// Avatar → sign-in modal (only when already signed in)
 $('#avatarBtn').addEventListener('click', openAuthModal);
-$('#scrim').addEventListener('click', closeAuthModal);
+$('#scrim').addEventListener('click', () => {
+    // Only close auth modal, never close the gate
+    if ($('#authModal') && !$('#authModal').hidden) closeAuthModal();
+});
 
 // Start Firebase auth listener (also handles cloud sync hook-up)
 watchAuth(onAuthChange);
