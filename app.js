@@ -17,9 +17,9 @@ const GOALS_KEY = 'cefalo.planner.goals.v1';
 const DEFAULT_TWEAKS = {
     accent: 'cyan',
     dark: false,
-    head: 'aesthetic',
+    head: 'serif',
     density: 'regular',
-    radius: 'soft',
+    radius: 'sharp',
     notesCollapsed: false,
 };
 
@@ -731,15 +731,21 @@ function applyNotesCollapsed() {
 function applyTweaks() {
     const app = $('#app');
     const t = state.tweaks;
+    // Normalize legacy head values to the 3 supported options
+    if (!['inter', 'serif', 'mono'].includes(t.head)) t.head = 'serif';
     app.setAttribute('data-theme', t.dark ? 'dark' : 'light');
     app.setAttribute('data-accent', t.accent);
     app.setAttribute('data-head', t.head);
+    app.setAttribute('data-density', t.density || 'regular');
+    app.setAttribute('data-radius', t.radius || 'sharp');
     document.documentElement.setAttribute('data-head', t.head);
 
     $$('#accPicker .acc-dot').forEach(b => b.classList.toggle('is-active', b.dataset.acc === t.accent));
     $('#darkToggle').classList.toggle('is-on', t.dark);
     $('#darkToggle').setAttribute('aria-pressed', String(t.dark));
     $$('#segHead .seg-btn').forEach(b => b.classList.toggle('is-active', b.dataset.head === t.head));
+    $$('#segDensity .seg-btn').forEach(b => b.classList.toggle('is-active', b.dataset.density === (t.density || 'regular')));
+    $$('#segRadius .seg-btn').forEach(b => b.classList.toggle('is-active', b.dataset.radius === (t.radius || 'sharp')));
     applyNotesCollapsed();
 
     const meta = document.querySelector('meta[name="theme-color"]');
@@ -894,6 +900,14 @@ function wireEvents() {
     $('#segHead').addEventListener('click', e => {
         const b = e.target.closest('.seg-btn'); if (!b) return;
         setTweak('head', b.dataset.head);
+    });
+    $('#segDensity').addEventListener('click', e => {
+        const b = e.target.closest('.seg-btn'); if (!b) return;
+        setTweak('density', b.dataset.density);
+    });
+    $('#segRadius').addEventListener('click', e => {
+        const b = e.target.closest('.seg-btn'); if (!b) return;
+        setTweak('radius', b.dataset.radius);
     });
     $('#tweaksReset').addEventListener('click', () => {
         state.tweaks = { ...DEFAULT_TWEAKS };

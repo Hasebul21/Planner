@@ -45,13 +45,13 @@
     --acc-soft: #E6F6FB;
     --acc-ink: #FFFFFF;
 
-    /* ---- Typography (Monaco everywhere) ---- */
-    --font-head: Monaco, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+    /* ---- Typography ---- */
+    --font-head: 'Newsreader', 'Georgia', serif;
     --font-head-style: normal;
     --font-head-weight: 600;
-    --font-head-tracking: -0.015em;
-    --font-body: Monaco, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
-    --font-mono: Monaco, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+    --font-head-tracking: -0.03em;
+    --font-body: 'InterVariable', 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace;
 
     /* ---- Density (multiplier on spacing & type) ---- */
     --dens: 1;
@@ -67,16 +67,26 @@
     --gap-default: 48px;
 }
 
-/* Heading font variants — all locked to Monaco */
-[data-head="aesthetic"],
-[data-head="inter"] :root,
-[data-head="inter"],
-[data-head="serif"],
-[data-head="mono"] {
-    --font-head: Monaco, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+/* Heading font variants */
+[data-head="inter"] {
+    --font-head: 'InterVariable', 'Inter', system-ui, sans-serif;
+    --font-head-style: normal;
+    --font-head-weight: 700;
+    --font-head-tracking: -0.02em;
+}
+
+[data-head="serif"] {
+    --font-head: 'Newsreader', 'Georgia', serif;
     --font-head-style: normal;
     --font-head-weight: 600;
-    --font-head-tracking: -0.015em;
+    --font-head-tracking: -0.03em;
+}
+
+[data-head="mono"] {
+    --font-head: 'JetBrains Mono', 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace;
+    --font-head-style: normal;
+    --font-head-weight: 700;
+    --font-head-tracking: -0.02em;
 }
 
 /* Density */
@@ -276,18 +286,18 @@ textarea::placeholder {
     font-weight: var(--font-head-weight);
 }
 
-/* Aesthetic font sizes up nicely (Instrument Serif has tall x-height) */
-[data-head="aesthetic"] .heading-l {
+/* Newsreader (serif) display sizes */
+[data-head="serif"] .heading-l {
     font-size: 2.7rem;
     line-height: 1.05;
 }
 
-[data-head="aesthetic"] .heading-m {
+[data-head="serif"] .heading-m {
     font-size: 1.7rem;
     line-height: 1.15;
 }
 
-[data-head="aesthetic"] .heading-s {
+[data-head="serif"] .heading-s {
     font-size: 1.35rem;
 }
 

@@ -40,8 +40,8 @@
         </div>
     </div>
 
-    <div class="app" id="app" data-theme="light" data-accent="cyan" data-density="regular" data-radius="soft"
-        data-head="aesthetic" hidden>
+    <div class="app" id="app" data-theme="light" data-accent="cyan" data-density="regular" data-radius="sharp"
+        data-head="serif" hidden>
 
         <!-- ============== TOP APP BAR ============== -->
         <header class="appbar" role="banner">
@@ -170,7 +170,8 @@
                                 <span class="eyebrow-txt">Direction</span>
                             </div>
                             <h2 class="goals-title heading-m" id="goalsPlanTitle">Goals</h2>
-                            <p class="goals-range body-s" id="goalsPlanRange">Quarterly milestones for the next three months.</p>
+                            <p class="goals-range body-s" id="goalsPlanRange">Quarterly milestones for the next three
+                                months.</p>
                         </div>
                         <div class="goals-progress" aria-label="Milestone progress">
                             <div class="goals-progress-copy">
@@ -239,14 +240,30 @@
                 <span class="tweak-section-label">Typography</span>
                 <div class="tweak-row">
                     <span>Heading font</span>
-                    <div class="seg seg-wrap" id="segHead">
+                    <div class="seg" id="segHead">
                         <button class="seg-btn" data-head="inter">Inter</button>
-                        <button class="seg-btn is-active" data-head="aesthetic">Aesthetic</button>
-                        <button class="seg-btn" data-head="serif">Serif</button>
+                        <button class="seg-btn is-active" data-head="serif">Serif</button>
                         <button class="seg-btn" data-head="mono">Mono</button>
-                        <button class="seg-btn" data-head="monaco">Monaco</button>
-                        <button class="seg-btn" data-head="playfair">Playfair</button>
-                        <button class="seg-btn" data-head="cormorant">Cormorant</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tweak-section">
+                <span class="tweak-section-label">Layout</span>
+                <div class="tweak-row">
+                    <span>Density</span>
+                    <div class="seg" id="segDensity">
+                        <button class="seg-btn" data-density="compact">Compact</button>
+                        <button class="seg-btn is-active" data-density="regular">Regular</button>
+                        <button class="seg-btn" data-density="comfy">Comfy</button>
+                    </div>
+                </div>
+                <div class="tweak-row">
+                    <span>Corners</span>
+                    <div class="seg" id="segRadius">
+                        <button class="seg-btn is-active" data-radius="sharp">Sharp</button>
+                        <button class="seg-btn" data-radius="soft">Soft</button>
+                        <button class="seg-btn" data-radius="round">Round</button>
                     </div>
                 </div>
             </div>

@@ -521,7 +521,7 @@
     line-height: 1.1;
 }
 
-[data-head="aesthetic"] .todo-head .card-title {
+[data-head="serif"] .todo-head .card-title {
     font-size: 1.8rem;
 }
 
@@ -715,7 +715,7 @@
     line-height: 1.3;
 }
 
-[data-head="aesthetic"] .task-title {
+[data-head="serif"] .task-title {
     font-size: 1rem;
     line-height: 1.2;
 }
