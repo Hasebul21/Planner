@@ -706,7 +706,7 @@
     font-family: var(--font-head);
     font-style: var(--font-head-style);
     font-weight: var(--font-head-weight);
-    font-size: 1.05rem;
+    font-size: 0.9rem;
     color: var(--fg);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -716,7 +716,7 @@
 }
 
 [data-head="aesthetic"] .task-title {
-    font-size: 1.2rem;
+    font-size: 1rem;
     line-height: 1.2;
 }
 
@@ -725,7 +725,7 @@
     font-family: var(--font-body);
     font-style: normal;
     font-weight: 500;
-    font-size: 14.5px;
+    font-size: 13px;
 }
 
 .sub-tally {
@@ -819,13 +819,8 @@
     align-items: center;
     justify-content: center;
     color: var(--fg-faint);
-    opacity: 0;
-    transition: opacity 160ms ease, color 160ms ease, background 160ms ease;
-}
-
-.task:hover .delete-btn,
-.task:focus-within .delete-btn {
     opacity: 1;
+    transition: opacity 160ms ease, color 160ms ease, background 160ms ease;
 }
 
 .delete-btn:hover {
