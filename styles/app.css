@@ -279,8 +279,8 @@
 /* ============== PAGE GRID ============== */
 .page-grid {
     display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 24px;
+    grid-template-columns: minmax(360px, 1.1fr) minmax(0, 1fr);
+    gap: 32px;
     align-items: start;
 }
 

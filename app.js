@@ -268,7 +268,7 @@ function taskTemplate(t) {
 
     const tally = subTotal ? `<span class="sub-tally">${subDone}/${subTotal}</span>` : '';
     const dur = t.duration ? `<span class="dur-pill"><i data-lucide="clock"></i>${fmtDuration(t.duration)}</span>` : '';
-    const cat = t.category ? `<span class="cat-pill">${escapeHtml(t.category)}</span>` : '';
+    const cat = '';
 
     const expandable = subTotal > 0 || addingSub || expanded;
     const chev = expandable

@@ -45,13 +45,13 @@
     --acc-soft: #E6F6FB;
     --acc-ink: #FFFFFF;
 
-    /* ---- Typography ---- */
-    --font-head: 'Instrument Serif', 'Newsreader', Georgia, 'Times New Roman', serif;
-    --font-head-style: italic;
-    --font-head-weight: 400;
-    --font-head-tracking: 0;
-    --font-body: 'InterVariable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    /* ---- Typography (Monaco everywhere) ---- */
+    --font-head: Monaco, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+    --font-head-style: normal;
+    --font-head-weight: 600;
+    --font-head-tracking: -0.015em;
+    --font-body: Monaco, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+    --font-mono: Monaco, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
 
     /* ---- Density (multiplier on spacing & type) ---- */
     --dens: 1;
@@ -67,34 +67,16 @@
     --gap-default: 48px;
 }
 
-/* Heading font variants */
-[data-head="aesthetic"] {
-    --font-head: 'Instrument Serif', 'Newsreader', Georgia, serif;
-    --font-head-style: italic;
-    --font-head-weight: 400;
-    --font-head-tracking: -0.005em;
-}
-
+/* Heading font variants — all locked to Monaco */
+[data-head="aesthetic"],
 [data-head="inter"] :root,
-[data-head="inter"] {
-    --font-head: 'InterVariable', 'Inter', system-ui, sans-serif;
+[data-head="inter"],
+[data-head="serif"],
+[data-head="mono"] {
+    --font-head: Monaco, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
     --font-head-style: normal;
     --font-head-weight: 600;
-    --font-head-tracking: -0.01em;
-}
-
-[data-head="serif"] {
-    --font-head: 'Newsreader', Georgia, 'Times New Roman', serif;
-    --font-head-style: normal;
-    --font-head-weight: 500;
-    --font-head-tracking: -0.005em;
-}
-
-[data-head="mono"] {
-    --font-head: 'JetBrains Mono', ui-monospace, Menlo, monospace;
-    --font-head-style: normal;
-    --font-head-weight: 500;
-    --font-head-tracking: -0.02em;
+    --font-head-tracking: -0.015em;
 }
 
 /* Density */

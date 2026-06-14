@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:opsz,ital,wght@6..72,0,400;6..72,0,500;6..72,0,600;6..72,1,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:opsz,ital,wght@6..72,0,400;6..72,0,500;6..72,0,600;6..72,1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
         rel="stylesheet" />
 
     <link rel="stylesheet" href="./styles/tokens.css" />
@@ -35,7 +35,6 @@
                     <i style="background:var(--cefalo-navy)"></i>
                 </span>
                 <span class="brand-name">Planner</span>
-                <span class="brand-pill">by Cefalo</span>
             </div>
 
             <nav class="appbar-tabs" aria-label="Sections">
@@ -204,31 +203,14 @@
                 <span class="tweak-section-label">Typography</span>
                 <div class="tweak-row">
                     <span>Heading font</span>
-                    <div class="seg" id="segHead">
+                    <div class="seg seg-wrap" id="segHead">
                         <button class="seg-btn" data-head="inter">Inter</button>
                         <button class="seg-btn is-active" data-head="aesthetic">Aesthetic</button>
                         <button class="seg-btn" data-head="serif">Serif</button>
                         <button class="seg-btn" data-head="mono">Mono</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tweak-section">
-                <span class="tweak-section-label">Layout</span>
-                <div class="tweak-row">
-                    <span>Density</span>
-                    <div class="seg" id="segDensity">
-                        <button class="seg-btn" data-density="compact">Compact</button>
-                        <button class="seg-btn is-active" data-density="regular">Regular</button>
-                        <button class="seg-btn" data-density="comfy">Comfy</button>
-                    </div>
-                </div>
-                <div class="tweak-row">
-                    <span>Corners</span>
-                    <div class="seg" id="segRadius">
-                        <button class="seg-btn" data-radius="sharp">Sharp</button>
-                        <button class="seg-btn is-active" data-radius="soft">Soft</button>
-                        <button class="seg-btn" data-radius="round">Round</button>
+                        <button class="seg-btn" data-head="monaco">Monaco</button>
+                        <button class="seg-btn" data-head="playfair">Playfair</button>
+                        <button class="seg-btn" data-head="cormorant">Cormorant</button>
                     </div>
                 </div>
             </div>
