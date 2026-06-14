@@ -179,6 +179,11 @@
     font-size: 2.6rem;
 }
 
+[data-head="aesthetic"] .page-title {
+    font-size: 3.3rem;
+    letter-spacing: -0.01em;
+}
+
 .page-date {
     color: var(--fg-muted);
     font-size: 14px;
@@ -710,8 +715,37 @@
     height: 13px;
 }
 
+/* Add-subtask hover button — mirrors the delete pattern, but accent-colored */
+.addsub-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-faint);
+    opacity: 0;
+    transition: opacity 160ms ease, color 160ms ease, background 160ms ease;
+}
+
+.task:hover .addsub-btn,
+.task:focus-within .addsub-btn {
+    opacity: 1;
+}
+
+.addsub-btn:hover {
+    color: var(--acc);
+    background: var(--acc-soft);
+}
+
+.addsub-btn svg {
+    width: 13px;
+    height: 13px;
+}
+
 @media (hover: none) {
-    .delete-btn {
+    .delete-btn,
+    .addsub-btn {
         opacity: 1;
     }
 }
@@ -1201,6 +1235,10 @@
     }
 
     .delete-btn {
+        display: none;
+    }
+
+    .addsub-btn {
         display: none;
     }
 

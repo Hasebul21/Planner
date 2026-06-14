@@ -46,7 +46,10 @@
     --acc-ink: #FFFFFF;
 
     /* ---- Typography ---- */
-    --font-head: 'Newsreader', Georgia, 'Times New Roman', serif;
+    --font-head: 'Instrument Serif', 'Newsreader', Georgia, 'Times New Roman', serif;
+    --font-head-style: italic;
+    --font-head-weight: 400;
+    --font-head-tracking: 0;
     --font-body: 'InterVariable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
@@ -65,17 +68,33 @@
 }
 
 /* Heading font variants */
+[data-head="aesthetic"] {
+    --font-head: 'Instrument Serif', 'Newsreader', Georgia, serif;
+    --font-head-style: italic;
+    --font-head-weight: 400;
+    --font-head-tracking: -0.005em;
+}
+
 [data-head="inter"] :root,
 [data-head="inter"] {
     --font-head: 'InterVariable', 'Inter', system-ui, sans-serif;
+    --font-head-style: normal;
+    --font-head-weight: 600;
+    --font-head-tracking: -0.01em;
 }
 
 [data-head="serif"] {
     --font-head: 'Newsreader', Georgia, 'Times New Roman', serif;
+    --font-head-style: normal;
+    --font-head-weight: 500;
+    --font-head-tracking: -0.005em;
 }
 
 [data-head="mono"] {
     --font-head: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    --font-head-style: normal;
+    --font-head-weight: 500;
+    --font-head-tracking: -0.02em;
 }
 
 /* Density */
@@ -251,25 +270,43 @@ textarea::placeholder {
 
 .heading-l {
     font-family: var(--font-head);
+    font-style: var(--font-head-style);
     font-size: 2.1rem;
     line-height: 1.15;
-    font-weight: 500;
-    letter-spacing: -0.01em;
+    font-weight: var(--font-head-weight);
+    letter-spacing: var(--font-head-tracking);
 }
 
 .heading-m {
     font-family: var(--font-head);
+    font-style: var(--font-head-style);
     font-size: 1.45rem;
     line-height: 1.25;
-    font-weight: 500;
-    letter-spacing: -0.005em;
+    font-weight: var(--font-head-weight);
+    letter-spacing: var(--font-head-tracking);
 }
 
 .heading-s {
     font-family: var(--font-head);
+    font-style: var(--font-head-style);
     font-size: 1.15rem;
     line-height: 1.35;
-    font-weight: 500;
+    font-weight: var(--font-head-weight);
+}
+
+/* Aesthetic font sizes up nicely (Instrument Serif has tall x-height) */
+[data-head="aesthetic"] .heading-l {
+    font-size: 2.7rem;
+    line-height: 1.05;
+}
+
+[data-head="aesthetic"] .heading-m {
+    font-size: 1.7rem;
+    line-height: 1.15;
+}
+
+[data-head="aesthetic"] .heading-s {
+    font-size: 1.35rem;
 }
 
 .body-m {

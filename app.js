@@ -10,7 +10,7 @@ const NOTES_KEY = 'cefalo.planner.notes.v1';
 const DEFAULT_TWEAKS = {
     accent: 'cyan',
     dark: false,
-    head: 'serif',
+    head: 'aesthetic',
     density: 'regular',
     radius: 'soft',
 };
@@ -287,6 +287,7 @@ function taskTemplate(t) {
         ${cat}
       </span>
       <span class="task-actions">
+        <button class="addsub-btn" data-act="addsub" aria-label="Add subtask" title="Add subtask"><i data-lucide="list-plus"></i></button>
         ${chev}
         <button class="delete-btn" data-act="delete" aria-label="Delete"><i data-lucide="x"></i></button>
       </span>
@@ -522,6 +523,7 @@ function wireEvents() {
         if (act === 'toggle') return toggleTask(id);
         if (act === 'delete') return deleteTask(id);
         if (act === 'expand') return toggleExpand(id);
+        if (act === 'addsub') return startAddSubtask(id);
     });
 
     // Subtask inline editing (blur saves)
