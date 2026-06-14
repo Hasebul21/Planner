@@ -457,6 +457,7 @@ function renderGoals() {
         const { monthName, range } = goalMonthInfo(offset);
         const items = state.goals.filter(g => g.monthOffset === offset);
         const doneCount = items.filter(g => g.done).length;
+        const slotLabel = `Month ${offset + 1}`;
         const rows = items.map(g => `
             <li class="goal-item ${g.done ? 'is-done' : ''}" data-goal-id="${g.id}">
                 <button class="goal-check" data-gact="toggle" aria-label="Toggle goal">
@@ -475,11 +476,14 @@ function renderGoals() {
         return `
         <section class="card goal-card" data-month-offset="${offset}">
             <header class="goal-card-head">
+                <div class="goal-card-head-top">
+                    <span class="goal-kicker eyebrow-txt">${slotLabel}</span>
+                    ${items.length ? `<span class="goal-count">${doneCount}/${items.length}</span>` : ''}
+                </div>
                 <div class="goal-card-head-text">
                     <h3 class="goal-month">${monthName}</h3>
                     <span class="goal-range">${range}</span>
                 </div>
-                ${items.length ? `<span class="goal-count">${doneCount}/${items.length}</span>` : ''}
             </header>
             <ul class="goal-list">${rows}${emptyRow}</ul>
             <form class="goal-add-form" data-offset="${offset}" autocomplete="off">
