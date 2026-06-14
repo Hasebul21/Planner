@@ -250,7 +250,7 @@ function renderTodo() {
 
     const ul = $('#taskList');
     if (list.length === 0) {
-        ul.innerHTML = `<li class="empty-row body-s" style="padding:18px 6px;color:var(--fg-faint)">
+        ul.innerHTML = `<li class="empty-row">
             ${state.filter === 'all' ? 'Nothing here yet — add your first task below.' :
                 state.filter === 'open' ? 'No open tasks. Nice.' : 'Nothing completed yet.'}
         </li>`;
