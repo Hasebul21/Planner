@@ -66,14 +66,16 @@
             <!-- Date + progress in the appbar centre -->
             <div class="appbar-center" id="appbarCenter">
                 <div class="ab-day-nav">
-                    <button class="icon-btn round" id="dayPrev" aria-label="Previous day"><i data-lucide="chevron-left"></i></button>
+                    <button class="icon-btn round" id="dayPrev" aria-label="Previous day"><i
+                            data-lucide="chevron-left"></i></button>
                     <span class="ab-date" id="pageDate">—</span>
-                    <button class="icon-btn round" id="dayNext" aria-label="Next day"><i data-lucide="chevron-right"></i></button>
+                    <button class="icon-btn round" id="dayNext" aria-label="Next day"><i
+                            data-lucide="chevron-right"></i></button>
                 </div>
                 <div class="ab-progress">
                     <svg viewBox="0 0 36 36" class="ab-ring" aria-hidden="true">
-                        <circle class="dp-track" cx="18" cy="18" r="15.915"/>
-                        <circle class="dp-fill" cx="18" cy="18" r="15.915" id="dpFill" stroke-dasharray="0 100"/>
+                        <circle class="dp-track" cx="18" cy="18" r="15.915" />
+                        <circle class="dp-fill" cx="18" cy="18" r="15.915" id="dpFill" stroke-dasharray="0 100" />
                     </svg>
                     <span class="ab-pct tabular" id="dpPct">0%</span>
                     <span class="ab-frac tabular" id="dpFrac">0/0</span>
@@ -165,15 +167,39 @@
                     <div class="goals-header">
                         <div class="goals-header-text">
                             <div class="eyebrow-row goals-eyebrow">
-                                <span class="eyebrow-txt">Goals</span>
+                                <span class="eyebrow-txt">Direction</span>
                             </div>
-                            <h2 class="goals-title heading-m" id="goalsPlanTitle">3-Month Plan</h2>
-                            <p class="goals-range body-s" id="goalsPlanRange">—</p>
+                            <h2 class="goals-title heading-m" id="goalsPlanTitle">Goals &amp; Plan</h2>
+                            <p class="goals-range body-s" id="goalsPlanRange">Quarterly milestones and your day-by-day plan for the next two months.</p>
+                        </div>
+                        <div class="goals-progress" aria-label="Milestone progress">
+                            <div class="goals-progress-copy">
+                                <span class="goals-progress-label">Milestones done</span>
+                                <span class="goals-progress-pct tabular" id="goalsPct">0%</span>
+                            </div>
+                            <div class="goals-progress-ring-wrap">
+                                <svg viewBox="0 0 36 36" class="goals-ring" aria-hidden="true">
+                                    <circle class="goals-ring-track" cx="18" cy="18" r="15.915"></circle>
+                                    <circle class="goals-ring-fill" cx="18" cy="18" r="15.915" id="goalsRingFill" stroke-dasharray="0 100"></circle>
+                                </svg>
+                                <span class="goals-progress-frac tabular" id="goalsFrac">0/0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="goals-section-head">
+                        <span class="goals-section-icon" aria-hidden="true"><i data-lucide="flag"></i></span>
+                        <div class="goals-section-copy">
+                            <h3 class="goals-section-title">3-month milestones</h3>
+                            <p class="goals-section-sub">This quarter</p>
                         </div>
                     </div>
                     <div class="goals-grid" id="goalsGrid">
                         <!-- 3 month cards rendered by JS -->
                     </div>
+                    <form class="goals-quick-add" id="goalsQuickAddForm" autocomplete="off">
+                        <i data-lucide="plus"></i>
+                        <input id="goalsQuickAddInput" type="text" maxlength="200" placeholder="Add a goal…" />
+                    </form>
                 </div>
             </section>
         </main>

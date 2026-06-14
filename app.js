@@ -444,20 +444,30 @@ function renderGoals() {
     const grid = $('#goalsGrid');
     if (!grid) return;
 
-    // Plan title: first month – third month range
     const start = new Date(); start.setDate(1);
-    const endMonth = new Date(start.getFullYear(), start.getMonth() + 3, 0);
-    const fmtM = (d) => d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
     const titleEl = $('#goalsPlanTitle');
     const rangeEl = $('#goalsPlanRange');
-    if (titleEl) titleEl.textContent = '3-Month Plan';
-    if (rangeEl) rangeEl.textContent = `${fmtM(start)} – ${fmtM(endMonth)}`;
+    if (titleEl) titleEl.textContent = 'Goals & Plan';
+    if (rangeEl) rangeEl.textContent = 'Quarterly milestones and your day-by-day plan for the next two months.';
+
+    const totalGoals = state.goals.length;
+    const totalDone = state.goals.filter(g => g.done).length;
+    const pct = totalGoals ? Math.round((totalDone / totalGoals) * 100) : 0;
+    const pctEl = $('#goalsPct');
+    const fracEl = $('#goalsFrac');
+    const ringEl = $('#goalsRingFill');
+    if (pctEl) pctEl.textContent = `${pct}%`;
+    if (fracEl) fracEl.textContent = `${totalDone}/${totalGoals}`;
+    if (ringEl) ringEl.setAttribute('stroke-dasharray', `${pct} ${100 - pct}`);
 
     grid.innerHTML = [0, 1, 2].map(offset => {
-        const { monthName, range } = goalMonthInfo(offset);
+        const { monthName } = goalMonthInfo(offset);
         const items = state.goals.filter(g => g.monthOffset === offset);
         const doneCount = items.filter(g => g.done).length;
-        const slotLabel = `Month ${offset + 1}`;
+        const monthDate = new Date(start.getFullYear(), start.getMonth() + offset, 1);
+        const pillLabel = offset === 0 ? 'Platform' : offset === 1 ? 'Craft' : 'Stretch';
+        const stamp = monthDate.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+        const cardPct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
         const rows = items.map(g => `
             <li class="goal-item ${g.done ? 'is-done' : ''}" data-goal-id="${g.id}">
                 <button class="goal-check" data-gact="toggle" aria-label="Toggle goal">
@@ -470,25 +480,32 @@ function renderGoals() {
             </li>`).join('');
 
         const emptyRow = items.length === 0
-            ? `<li class="goal-empty">No targets yet — add one below</li>`
+            ? `<li class="goal-empty">No milestones yet</li>`
             : '';
 
         return `
         <section class="card goal-card" data-month-offset="${offset}">
             <header class="goal-card-head">
                 <div class="goal-card-head-top">
-                    <span class="goal-kicker eyebrow-txt">${slotLabel}</span>
-                    ${items.length ? `<span class="goal-count">${doneCount}/${items.length}</span>` : ''}
+                    <div class="goal-meta">
+                        <span class="goal-badge">${pillLabel}</span>
+                        <span class="goal-stamp"><i data-lucide="flag"></i>${stamp}</span>
+                    </div>
                 </div>
                 <div class="goal-card-head-text">
                     <h3 class="goal-month">${monthName}</h3>
-                    <span class="goal-range">${range}</span>
+                    <span class="goal-range">${doneCount} of ${items.length} milestones</span>
                 </div>
+                <div class="goal-progress-row">
+                    <span class="goal-progress-label">${doneCount} of ${items.length} milestones</span>
+                    <span class="goal-progress-pct tabular">${cardPct}%</span>
+                </div>
+                <div class="goal-progress-bar" aria-hidden="true"><i style="width:${cardPct}%"></i></div>
             </header>
             <ul class="goal-list">${rows}${emptyRow}</ul>
             <form class="goal-add-form" data-offset="${offset}" autocomplete="off">
                 <i data-lucide="plus"></i>
-                <input type="text" class="goal-add-input" maxlength="200" placeholder="Add a target…" />
+                <input type="text" class="goal-add-input" maxlength="200" placeholder="Add a milestone" />
             </form>
         </section>`;
     }).join('');
@@ -529,6 +546,23 @@ function wireGoalEvents() {
         input.value = '';
         input.focus();
     });
+
+    const quickForm = $('#goalsQuickAddForm');
+    if (quickForm && !quickForm.dataset.bound) {
+        quickForm.dataset.bound = 'true';
+        quickForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const input = $('#goalsQuickAddInput');
+            const text = input?.value.trim();
+            if (!text) return;
+            state.goals.push({ id: uid(), monthOffset: 0, text, done: false, created: Date.now() });
+            saveGoals(); renderGoals(); refreshIcons();
+            if (input) {
+                input.value = '';
+                input.focus();
+            }
+        });
+    }
 }
 
 function taskTemplate(t) {
