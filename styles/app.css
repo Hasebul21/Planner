@@ -1575,10 +1575,10 @@
     background: var(--card);
     border: 1px solid var(--acc);
     border-radius: var(--rad);
-    padding: 20px 22px 18px;
+    padding: 26px 28px 24px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 18px;
 }
 
 .week-card-head {
@@ -1592,7 +1592,7 @@
     font-family: 'Newsreader', 'Cormorant Garamond', Georgia, serif;
     font-style: normal;
     font-weight: 700;
-    font-size: 1.4rem;
+    font-size: 1.7rem;
     color: var(--acc);
     line-height: 1.1;
     margin: 0;
@@ -1601,16 +1601,16 @@
 
 .week-card-range {
     font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--fg-faint);
-    margin-top: 4px;
+    margin-top: 6px;
     letter-spacing: 0.02em;
     font-variant-numeric: tabular-nums;
 }
 
 .week-card-count {
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--fg-muted);
     font-variant-numeric: tabular-nums;
@@ -1625,18 +1625,18 @@
 .week-day-grid {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 10px;
+    gap: 14px;
 }
 
 .week-day {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 12px 12px 14px;
-    border-radius: 12px;
+    gap: 6px;
+    padding: 16px 16px 18px;
+    border-radius: 14px;
     background: var(--bg);
     border: 1px solid transparent;
-    min-height: 110px;
+    min-height: 150px;
     transition: background 160ms ease, border-color 160ms ease;
 }
 
@@ -1652,7 +1652,7 @@
 
 .week-day-dow {
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 12.5px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--fg);
     letter-spacing: 0;
@@ -1660,23 +1660,23 @@
 
 .week-day-date {
     font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--fg-faint);
     font-variant-numeric: tabular-nums;
     margin-top: 2px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .week-day .goal-check {
-    width: 16px;
-    height: 16px;
-    border-radius: 5px;
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
     border-width: 1.5px;
 }
 
 .week-day .goal-check svg {
-    width: 10px;
-    height: 10px;
+    width: 11px;
+    height: 11px;
 }
 
 .week-day.is-done .goal-check {
@@ -1687,8 +1687,8 @@
 
 .week-day-plan {
     font-family: 'Newsreader', 'Cormorant Garamond', Georgia, serif;
-    font-size: 13.5px;
-    line-height: 1.35;
+    font-size: 15px;
+    line-height: 1.4;
     color: var(--fg);
     background: transparent;
     border: 0;
