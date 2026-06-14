@@ -159,22 +159,18 @@
                 </div>
             </section>
 
-            <!-- View: GOALS (placeholder) -->
+            <!-- View: GOALS -->
             <section class="view view-goals" data-view="goals" hidden>
-                <header class="page-head">
-                    <div class="page-head-text">
-                        <span class="greet">Goals</span>
-                        <h1 class="page-title heading-l">Where you're heading</h1>
-                        <p class="page-date body-s">Set the direction. Tasks become the path.</p>
+                <div class="goals-view" id="goalsView">
+                    <div class="goals-header">
+                        <div class="goals-header-text">
+                            <h2 class="goals-title heading-m" id="goalsPlanTitle">3-Month Plan</h2>
+                            <p class="goals-range body-s" id="goalsPlanRange">—</p>
+                        </div>
                     </div>
-                </header>
-                <div class="page-grid single">
-                    <section class="card empty-card">
-                        <div class="empty-mark"><i data-lucide="target"></i></div>
-                        <h3 class="heading-m">Goals are coming soon.</h3>
-                        <p class="body-s">A calm place to define quarterly aims and tie them back to your daily work.
-                        </p>
-                    </section>
+                    <div class="goals-grid" id="goalsGrid">
+                        <!-- 3 month cards rendered by JS -->
+                    </div>
                 </div>
             </section>
         </main>

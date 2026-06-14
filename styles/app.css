@@ -1089,6 +1089,238 @@
     margin-bottom: 8px;
 }
 
+/* ============== GOALS VIEW ============== */
+.goals-view {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.goals-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.goals-title {
+    font-family: var(--font-head);
+    font-style: var(--font-head-style);
+    font-weight: var(--font-head-weight);
+    font-size: 1.4rem;
+    color: var(--fg);
+    margin: 0;
+}
+
+.goals-range {
+    font-size: 13px;
+    color: var(--fg-faint);
+}
+
+.goals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.goal-card {
+    padding: 22px 20px 16px;
+    gap: 14px;
+    display: flex;
+    flex-direction: column;
+}
+
+.goal-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.goal-card-head-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.goal-month {
+    font-family: var(--font-head);
+    font-style: var(--font-head-style);
+    font-weight: var(--font-head-weight);
+    font-size: 1.1rem;
+    color: var(--fg);
+    margin: 0;
+    letter-spacing: var(--font-head-tracking);
+}
+
+.goal-range {
+    font-size: 11.5px;
+    color: var(--fg-faint);
+}
+
+.goal-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--acc);
+    font-variant-numeric: tabular-nums;
+    background: var(--acc-soft);
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex: none;
+}
+
+.goal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.goal-item {
+    display: grid;
+    grid-template-columns: 24px 1fr 24px;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 4px;
+    border-top: 1px solid var(--line-soft);
+    transition: background 140ms ease;
+}
+
+.goal-item:first-child {
+    border-top: 0;
+}
+
+.goal-item:hover {
+    background: var(--row-hover);
+    border-radius: 8px;
+}
+
+.goal-check {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-faint);
+    border-radius: 6px;
+    transition: color 160ms ease, background 160ms ease;
+}
+
+.goal-check svg {
+    width: 16px;
+    height: 16px;
+}
+
+.goal-check:hover {
+    color: var(--acc);
+    background: var(--acc-soft);
+}
+
+.goal-item.is-done .goal-check {
+    color: var(--cefalo-green);
+}
+
+.goal-text {
+    font-size: 13.5px;
+    color: var(--fg);
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.goal-item.is-done .goal-text {
+    text-decoration: line-through;
+    color: var(--fg-faint);
+}
+
+.goal-del {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-faint);
+    border-radius: 6px;
+    transition: color 160ms ease, background 160ms ease;
+    opacity: 0;
+}
+
+.goal-item:hover .goal-del {
+    opacity: 1;
+}
+
+.goal-del svg {
+    width: 12px;
+    height: 12px;
+}
+
+.goal-del:hover {
+    color: var(--cefalo-rust);
+    background: var(--card-2);
+}
+
+.goal-empty {
+    font-size: 13px;
+    color: var(--fg-faint);
+    font-style: italic;
+    padding: 12px 4px;
+    font-family: var(--font-head);
+    list-style: none;
+}
+
+.goal-add-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1.5px dashed var(--line);
+    transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+    cursor: text;
+    margin-top: 4px;
+}
+
+.goal-add-form:hover {
+    border-color: color-mix(in srgb, var(--acc) 40%, var(--line));
+}
+
+.goal-add-form:focus-within {
+    border-color: var(--acc);
+    border-style: solid;
+    background: var(--bg-elev);
+    box-shadow: 0 0 0 4px var(--acc-soft);
+}
+
+.goal-add-form svg {
+    width: 14px;
+    height: 14px;
+    color: var(--fg-faint);
+    flex: none;
+}
+
+.goal-add-input {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 13.5px;
+    color: var(--fg);
+    width: 100%;
+    font-family: var(--font-body);
+}
+
+.goal-add-input::placeholder {
+    color: var(--fg-faint);
+    font-style: italic;
+}
+
+@media (max-width: 900px) {
+    .goals-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .empty-mark svg {
     width: 22px;
     height: 22px;

@@ -12,6 +12,7 @@ import {
 const STORAGE_KEY = 'cefalo.planner.v3';
 const TWEAKS_KEY = 'cefalo.planner.tweaks.v1';
 const NOTES_KEY = 'cefalo.planner.notes.v1';
+const GOALS_KEY = 'cefalo.planner.goals.v1';
 
 const DEFAULT_TWEAKS = {
     accent: 'cyan',
@@ -28,6 +29,7 @@ const state = {
     filter: 'all',               // all | open | done
     tasks: [],
     notes: '',
+    goals: [],                   // [{id, monthOffset, text, done, created}] monthOffset: 0=current,1,2
     selectedDate: todayISO(),    // ISO date string the calendar/today view points at
     calMonth: new Date(),        // any Date in the visible month
     expanded: new Set(),
@@ -117,6 +119,16 @@ function loadNotes() {
     try { return localStorage.getItem(NOTES_KEY) || ''; }
     catch (e) { return ''; }
 }
+function saveGoals() {
+    try { localStorage.setItem(GOALS_KEY, JSON.stringify(state.goals)); } catch (e) { }
+    scheduleCloudSync();
+}
+function loadGoals() {
+    try {
+        const raw = localStorage.getItem(GOALS_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+}
 
 // ============== CLOUD SYNC ==============
 let _cloudSyncTimer = null;
@@ -131,6 +143,7 @@ function scheduleCloudSync() {
             tasks: state.tasks,
             notes: state.notes,
             tweaks: state.tweaks,
+            goals: state.goals,
         });
     }, 400);
 }
@@ -150,6 +163,10 @@ function applyCloudState(data) {
         if (data.tweaks && typeof data.tweaks === 'object') {
             state.tweaks = { ...DEFAULT_TWEAKS, ...data.tweaks };
             try { localStorage.setItem(TWEAKS_KEY, JSON.stringify(state.tweaks)); } catch (e) { }
+        }
+        if (Array.isArray(data.goals)) {
+            state.goals = data.goals;
+            try { localStorage.setItem(GOALS_KEY, JSON.stringify(state.goals)); } catch (e) { }
         }
         applyTweaks();
         renderAll();
@@ -177,6 +194,7 @@ async function onAuthChange(user) {
             tasks: state.tasks,
             notes: state.notes,
             tweaks: state.tweaks,
+            goals: state.goals,
         });
     }
     // Subscribe to live changes (other devices/tabs)
@@ -305,6 +323,7 @@ function init() {
     state.tasks = loaded.tasks;
     state.tweaks = loadTweaks() || { ...DEFAULT_TWEAKS };
     state.notes = loadNotes();
+    state.goals = loadGoals();
 }
 
 // ============== SELECTORS ==============
@@ -330,6 +349,7 @@ function renderAll() {
     renderCalendar();
     renderNotes();
     renderTodo();
+    renderGoals();
     refreshIcons();
 }
 
@@ -407,6 +427,104 @@ function renderTodo() {
         return;
     }
     ul.innerHTML = list.map(t => taskTemplate(t)).join('');
+}
+
+// ============== GOALS ==============
+function goalMonthInfo(offset) {
+    const now = new Date();
+    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    const monthName = d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    // Range: 1st → last day of that month
+    const last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    const fmt = (dt) => dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return { monthName, range: `${fmt(d)} – ${fmt(last)}` };
+}
+
+function renderGoals() {
+    const grid = $('#goalsGrid');
+    if (!grid) return;
+
+    // Plan title: first month – third month range
+    const start = new Date(); start.setDate(1);
+    const endMonth = new Date(start.getFullYear(), start.getMonth() + 3, 0);
+    const fmtM = (d) => d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+    const titleEl = $('#goalsPlanTitle');
+    const rangeEl = $('#goalsPlanRange');
+    if (titleEl) titleEl.textContent = '3-Month Plan';
+    if (rangeEl) rangeEl.textContent = `${fmtM(start)} – ${fmtM(endMonth)}`;
+
+    grid.innerHTML = [0, 1, 2].map(offset => {
+        const { monthName, range } = goalMonthInfo(offset);
+        const items = state.goals.filter(g => g.monthOffset === offset);
+        const doneCount = items.filter(g => g.done).length;
+        const rows = items.map(g => `
+            <li class="goal-item ${g.done ? 'is-done' : ''}" data-goal-id="${g.id}">
+                <button class="goal-check" data-gact="toggle" aria-label="Toggle goal">
+                    <i data-lucide="${g.done ? 'check-circle-2' : 'circle'}"></i>
+                </button>
+                <span class="goal-text">${escapeHtml(g.text)}</span>
+                <button class="goal-del" data-gact="delete" aria-label="Delete goal">
+                    <i data-lucide="x"></i>
+                </button>
+            </li>`).join('');
+
+        const emptyRow = items.length === 0
+            ? `<li class="goal-empty">No targets yet — add one below</li>`
+            : '';
+
+        return `
+        <section class="card goal-card" data-month-offset="${offset}">
+            <header class="goal-card-head">
+                <div class="goal-card-head-text">
+                    <h3 class="goal-month">${monthName}</h3>
+                    <span class="goal-range">${range}</span>
+                </div>
+                ${items.length ? `<span class="goal-count">${doneCount}/${items.length}</span>` : ''}
+            </header>
+            <ul class="goal-list">${rows}${emptyRow}</ul>
+            <form class="goal-add-form" data-offset="${offset}" autocomplete="off">
+                <i data-lucide="plus"></i>
+                <input type="text" class="goal-add-input" maxlength="200" placeholder="Add a target…" />
+            </form>
+        </section>`;
+    }).join('');
+}
+
+function wireGoalEvents() {
+    const grid = $('#goalsGrid');
+    if (!grid) return;
+
+    // Delegate clicks on goal items
+    grid.addEventListener('click', e => {
+        const li = e.target.closest('[data-goal-id]');
+        if (!li) return;
+        const id = li.dataset.goalId;
+        const act = e.target.closest('[data-gact]')?.dataset.gact;
+        if (!act) return;
+        if (act === 'toggle') {
+            const g = state.goals.find(x => x.id === id);
+            if (g) { g.done = !g.done; saveGoals(); renderGoals(); refreshIcons(); }
+        }
+        if (act === 'delete') {
+            state.goals = state.goals.filter(x => x.id !== id);
+            saveGoals(); renderGoals(); refreshIcons();
+        }
+    });
+
+    // Delegate submit on add forms
+    grid.addEventListener('submit', e => {
+        const form = e.target.closest('.goal-add-form');
+        if (!form) return;
+        e.preventDefault();
+        const input = form.querySelector('.goal-add-input');
+        const text = input?.value.trim();
+        if (!text) return;
+        const offset = Number(form.dataset.offset);
+        state.goals.push({ id: uid(), monthOffset: offset, text, done: false, created: Date.now() });
+        saveGoals(); renderGoals(); refreshIcons();
+        input.value = '';
+        input.focus();
+    });
 }
 
 function taskTemplate(t) {
@@ -860,6 +978,7 @@ function toast(msg) {
 init();
 applyTweaks();
 wireEvents();
+wireGoalEvents();
 renderAll();
 
 // Show gate immediately — Firebase will call onAuthChange once it resolves
