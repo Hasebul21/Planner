@@ -447,8 +447,8 @@ function renderGoals() {
     const start = new Date(); start.setDate(1);
     const titleEl = $('#goalsPlanTitle');
     const rangeEl = $('#goalsPlanRange');
-    if (titleEl) titleEl.textContent = 'Goals & Plan';
-    if (rangeEl) rangeEl.textContent = 'Quarterly milestones and your day-by-day plan for the next two months.';
+    if (titleEl) titleEl.textContent = 'Goals';
+    if (rangeEl) rangeEl.textContent = 'Quarterly milestones for the next three months.';
 
     const totalGoals = state.goals.length;
     const totalDone = state.goals.filter(g => g.done).length;
