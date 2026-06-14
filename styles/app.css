@@ -1343,6 +1343,147 @@
     }
 }
 
+/* ============== AUTH MODAL ============== */
+.auth-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow-pop);
+    width: min(420px, calc(100vw - 32px));
+    padding: 28px 24px 22px;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    animation: auth-in 180ms ease;
+}
+
+.auth-modal[hidden] {
+    display: none;
+}
+
+.auth-modal-head {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.auth-modal-head .card-title {
+    font-family: var(--font-head);
+    font-style: var(--font-head-style);
+    font-weight: var(--font-head-weight);
+    font-size: 1.4rem;
+}
+
+.auth-modal-head .card-sub {
+    color: var(--fg-muted);
+    font-size: 13px;
+}
+
+.auth-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.auth-google {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+    font-weight: 500;
+}
+
+.auth-google svg {
+    width: 16px;
+    height: 16px;
+}
+
+.auth-divider {
+    text-align: center;
+    color: var(--fg-faint);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    position: relative;
+    margin: 4px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: var(--line);
+}
+
+.auth-divider::before {
+    left: 0;
+}
+
+.auth-divider::after {
+    right: 0;
+}
+
+.auth-divider span {
+    background: var(--card);
+    padding: 0 8px;
+    position: relative;
+}
+
+.auth-email {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.auth-email input {
+    border: 1px solid var(--line);
+    background: var(--bg-elev);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 14px;
+    color: var(--fg);
+    width: 100%;
+    outline: none;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+    font-family: var(--font-body);
+}
+
+.auth-email input:focus {
+    border-color: var(--acc);
+    box-shadow: 0 0 0 4px var(--acc-soft);
+}
+
+.auth-email .btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.avatar.is-signed-in {
+    background: var(--acc);
+    color: var(--acc-ink);
+    border-color: var(--acc);
+}
+
+@keyframes auth-in {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -46%) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */

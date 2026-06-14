@@ -117,8 +117,8 @@
                                     <h3 class="card-title">Notes</h3>
                                     <p class="card-sub">A space to think out loud</p>
                                 </div>
-                                <button class="icon-btn round notes-toggle" id="notesToggle"
-                                    aria-label="Collapse notes" aria-expanded="true">
+                                <button class="icon-btn round notes-toggle" id="notesToggle" aria-label="Collapse notes"
+                                    aria-expanded="true">
                                     <i data-lucide="chevron-up"></i>
                                 </button>
                             </header>
@@ -227,6 +227,15 @@
         </aside>
 
         <div class="scrim" id="scrim" hidden></div>
+
+        <!-- ============== AUTH MODAL ============== -->
+        <div class="auth-modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle" hidden>
+            <header class="auth-modal-head">
+                <h3 class="card-title" id="authTitle">Sign in to sync</h3>
+                <p class="card-sub" id="authSub">Your tasks, notes, and tweaks will live in your account.</p>
+            </header>
+            <div class="auth-modal-body" id="authBody"></div>
+        </div>
     </div>
 
     <!-- Toast -->

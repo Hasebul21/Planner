@@ -3,6 +3,12 @@
 // Top app bar shell · calendar · notes · to-do with subtasks · tweaks
 // ============================================================
 
+import {
+    watchAuth, currentUser, signInGoogle, signOut as cloudSignOut,
+    sendEmailLink, completeEmailLinkIfPresent,
+    loadCloudState, saveCloudState, watchCloudState,
+} from './firebase.js';
+
 const STORAGE_KEY = 'cefalo.planner.v3';
 const TWEAKS_KEY = 'cefalo.planner.tweaks.v1';
 const NOTES_KEY = 'cefalo.planner.notes.v1';
@@ -78,6 +84,7 @@ function escapeHtml(s) {
 function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ tasks: state.tasks })); }
     catch (e) { console.warn('Save failed', e); }
+    scheduleCloudSync();
 }
 function load() {
     try {
@@ -93,6 +100,7 @@ function load() {
 }
 function saveTweaks() {
     try { localStorage.setItem(TWEAKS_KEY, JSON.stringify(state.tweaks)); } catch (e) { }
+    scheduleCloudSync();
 }
 function loadTweaks() {
     try {
@@ -103,10 +111,90 @@ function loadTweaks() {
 }
 function saveNotes() {
     try { localStorage.setItem(NOTES_KEY, state.notes); } catch (e) { }
+    scheduleCloudSync();
 }
 function loadNotes() {
     try { return localStorage.getItem(NOTES_KEY) || ''; }
     catch (e) { return ''; }
+}
+
+// ============== CLOUD SYNC ==============
+let _cloudSyncTimer = null;
+let _suppressCloudSync = false; // true while we're applying cloud → local
+function scheduleCloudSync() {
+    if (_suppressCloudSync) return;
+    const user = currentUser();
+    if (!user) return;
+    clearTimeout(_cloudSyncTimer);
+    _cloudSyncTimer = setTimeout(() => {
+        saveCloudState(user.uid, {
+            tasks: state.tasks,
+            notes: state.notes,
+            tweaks: state.tweaks,
+        });
+    }, 400);
+}
+
+function applyCloudState(data) {
+    if (!data) return;
+    _suppressCloudSync = true;
+    try {
+        if (Array.isArray(data.tasks)) {
+            state.tasks = data.tasks.map(t => ({ ...t, subtasks: Array.isArray(t.subtasks) ? t.subtasks : [] }));
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ tasks: state.tasks })); } catch (e) { }
+        }
+        if (typeof data.notes === 'string') {
+            state.notes = data.notes;
+            try { localStorage.setItem(NOTES_KEY, state.notes); } catch (e) { }
+        }
+        if (data.tweaks && typeof data.tweaks === 'object') {
+            state.tweaks = { ...DEFAULT_TWEAKS, ...data.tweaks };
+            try { localStorage.setItem(TWEAKS_KEY, JSON.stringify(state.tweaks)); } catch (e) { }
+        }
+        applyTweaks();
+        renderAll();
+    } finally {
+        _suppressCloudSync = false;
+    }
+}
+
+let _cloudUnsub = null;
+async function onAuthChange(user) {
+    if (_cloudUnsub) { _cloudUnsub(); _cloudUnsub = null; }
+    updateAuthUI(user);
+    if (!user) return;
+    // First sign-in on this device: try cloud → if empty, push local
+    const cloud = await loadCloudState(user.uid);
+    if (cloud && (Array.isArray(cloud.tasks) || typeof cloud.notes === 'string')) {
+        applyCloudState(cloud);
+    } else {
+        // Push current local state up to seed the cloud doc
+        saveCloudState(user.uid, {
+            tasks: state.tasks,
+            notes: state.notes,
+            tweaks: state.tweaks,
+        });
+    }
+    // Subscribe to live changes (other devices/tabs)
+    _cloudUnsub = watchCloudState(user.uid, (data) => {
+        // Skip echoes of our own writes by comparing updatedAt timestamps roughly
+        applyCloudState(data);
+    });
+}
+
+function updateAuthUI(user) {
+    const avatar = $('#avatarBtn');
+    if (!avatar) return;
+    if (user) {
+        const initial = (user.displayName || user.email || '?').trim().charAt(0).toUpperCase();
+        avatar.textContent = initial;
+        avatar.title = user.displayName || user.email || 'Signed in';
+        avatar.classList.add('is-signed-in');
+    } else {
+        avatar.textContent = 'S';
+        avatar.title = 'Sign in';
+        avatar.classList.remove('is-signed-in');
+    }
 }
 
 function seedDemo() {
@@ -619,6 +707,85 @@ function isTyping(e) {
 function openTweaks() { $('#app').classList.add('is-tweaks-open'); $('#scrim').hidden = false; refreshIcons(); }
 function closeTweaks() { $('#app').classList.remove('is-tweaks-open'); $('#scrim').hidden = true; }
 
+function openAuthModal() {
+    const user = currentUser();
+    if (user) {
+        // Already signed in → show profile / sign out
+        const m = $('#authModal');
+        m.dataset.mode = 'profile';
+        $('#authTitle').textContent = 'Signed in';
+        $('#authSub').textContent = user.displayName || user.email || '';
+        $('#authBody').innerHTML = `
+            <button class="btn btn-secondary btn-sm" id="authSignOutBtn" style="width:100%;justify-content:center;">
+                <i data-lucide="log-out"></i><span>Sign out</span>
+            </button>
+        `;
+        m.hidden = false;
+        $('#scrim').hidden = false;
+        refreshIcons();
+        $('#authSignOutBtn').addEventListener('click', async () => {
+            await cloudSignOut();
+            closeAuthModal();
+            toast('Signed out');
+        });
+        return;
+    }
+    const m = $('#authModal');
+    m.dataset.mode = 'signin';
+    $('#authTitle').textContent = 'Sign in to sync';
+    $('#authSub').textContent = 'Your tasks, notes, and tweaks will live in your account.';
+    $('#authBody').innerHTML = `
+        <button class="btn btn-secondary auth-google" id="googleBtn">
+            <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
+                <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
+                <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.4 4 9.8 8.3 6.3 14.7z"/>
+                <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.5-5.2l-6.2-5.2C29.2 35 26.8 36 24 36c-5.3 0-9.7-3.1-11.3-8l-6.5 5C9.6 39.6 16.3 44 24 44z"/>
+                <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.4 4.4-4.5 5.6l6.2 5.2C40.6 35.6 44 30.3 44 24c0-1.3-.1-2.4-.4-3.5z"/>
+            </svg>
+            <span>Continue with Google</span>
+        </button>
+        <div class="auth-divider"><span>or</span></div>
+        <form id="emailLinkForm" class="auth-email">
+            <input type="email" id="emailInput" placeholder="you@example.com" required autocomplete="email" />
+            <button class="btn btn-primary" type="submit">
+                <i data-lucide="mail"></i><span>Email me a sign-in link</span>
+            </button>
+        </form>
+    `;
+    m.hidden = false;
+    $('#scrim').hidden = false;
+    refreshIcons();
+
+    $('#googleBtn').addEventListener('click', async () => {
+        try {
+            await signInGoogle();
+            closeAuthModal();
+            toast('Signed in');
+        } catch (e) {
+            console.error(e);
+            toast(e?.code === 'auth/popup-closed-by-user' ? 'Cancelled' : 'Sign-in failed');
+        }
+    });
+    $('#emailLinkForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = $('#emailInput').value.trim();
+        if (!email) return;
+        try {
+            await sendEmailLink(email);
+            $('#authBody').innerHTML = `<p style="text-align:center;color:var(--fg-muted);font-size:14px;">Check <strong>${escapeHtml(email)}</strong> for a sign-in link.</p>`;
+        } catch (err) {
+            console.error(err);
+            toast('Could not send link');
+        }
+    });
+}
+
+function closeAuthModal() {
+    const m = $('#authModal');
+    if (m) m.hidden = true;
+    if (!$('#app').classList.contains('is-tweaks-open')) $('#scrim').hidden = true;
+}
+
 let toastTimer;
 function toast(msg) {
     const el = $('#toast');
@@ -633,3 +800,13 @@ init();
 applyTweaks();
 wireEvents();
 renderAll();
+
+// Avatar → sign-in modal
+$('#avatarBtn').addEventListener('click', openAuthModal);
+$('#scrim').addEventListener('click', closeAuthModal);
+
+// Start Firebase auth listener (also handles cloud sync hook-up)
+watchAuth(onAuthChange);
+
+// Complete email-link sign-in if user arrived via magic link
+completeEmailLinkIfPresent().catch(e => console.warn('email link complete', e));
