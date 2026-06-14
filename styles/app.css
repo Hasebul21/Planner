@@ -465,10 +465,52 @@
 /* ============== NOTES ============== */
 .notes-card {
     gap: 12px;
+    transition: gap 200ms ease;
+}
+
+.notes-head {
+    align-items: center;
 }
 
 .notes-head .card-icon {
     background: var(--acc-soft);
+}
+
+.notes-toggle {
+    margin-left: auto;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--line);
+    transition: transform 220ms ease, background 160ms ease;
+}
+
+.notes-toggle:hover {
+    background: var(--row-hover);
+}
+
+.notes-toggle svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 220ms ease;
+}
+
+.notes-card.is-collapsed {
+    gap: 0;
+    padding-bottom: 14px;
+}
+
+.notes-card.is-collapsed .notes-area,
+.notes-card.is-collapsed .card-sub {
+    display: none;
+}
+
+.notes-card.is-collapsed .notes-toggle svg {
+    transform: rotate(180deg);
+}
+
+/* Grid shifts when notes is collapsed: rail shrinks, To-do grows */
+.page-grid.notes-collapsed {
+    grid-template-columns: minmax(280px, 0.55fr) minmax(0, 1.45fr);
 }
 
 .notes-area {

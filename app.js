@@ -13,6 +13,7 @@ const DEFAULT_TWEAKS = {
     head: 'aesthetic',
     density: 'regular',
     radius: 'soft',
+    notesCollapsed: false,
 };
 
 // ============== STATE ==============
@@ -409,6 +410,19 @@ function deleteSubtask(taskId, subId) {
 }
 
 // ============== TWEAKS ==============
+function applyNotesCollapsed() {
+    const collapsed = !!state.tweaks.notesCollapsed;
+    const grid = document.querySelector('.page-grid');
+    const card = $('#notesCard');
+    const btn = $('#notesToggle');
+    if (grid) grid.classList.toggle('notes-collapsed', collapsed);
+    if (card) card.classList.toggle('is-collapsed', collapsed);
+    if (btn) {
+        btn.setAttribute('aria-expanded', String(!collapsed));
+        btn.setAttribute('aria-label', collapsed ? 'Expand notes' : 'Collapse notes');
+    }
+}
+
 function applyTweaks() {
     const app = $('#app');
     const t = state.tweaks;
@@ -421,6 +435,7 @@ function applyTweaks() {
     $('#darkToggle').classList.toggle('is-on', t.dark);
     $('#darkToggle').setAttribute('aria-pressed', String(t.dark));
     $$('#segHead .seg-btn').forEach(b => b.classList.toggle('is-active', b.dataset.head === t.head));
+    applyNotesCollapsed();
 
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
@@ -570,6 +585,7 @@ function wireEvents() {
         setTweak('accent', b.dataset.acc);
     });
     $('#darkToggle').addEventListener('click', () => setTweak('dark', !state.tweaks.dark));
+    $('#notesToggle').addEventListener('click', () => setTweak('notesCollapsed', !state.tweaks.notesCollapsed));
     $('#segHead').addEventListener('click', e => {
         const b = e.target.closest('.seg-btn'); if (!b) return;
         setTweak('head', b.dataset.head);

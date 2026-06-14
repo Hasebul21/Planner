@@ -110,13 +110,17 @@
                         </section>
 
                         <!-- Notes -->
-                        <section class="card notes-card" aria-label="Notes">
+                        <section class="card notes-card" id="notesCard" aria-label="Notes">
                             <header class="card-head notes-head">
                                 <span class="card-icon"><i data-lucide="pencil-line"></i></span>
                                 <div class="card-head-text">
                                     <h3 class="card-title">Notes</h3>
                                     <p class="card-sub">A space to think out loud</p>
                                 </div>
+                                <button class="icon-btn round notes-toggle" id="notesToggle"
+                                    aria-label="Collapse notes" aria-expanded="true">
+                                    <i data-lucide="chevron-up"></i>
+                                </button>
                             </header>
                             <textarea id="notesArea" class="notes-area" placeholder="Anything on your mind…"></textarea>
                         </section>
