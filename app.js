@@ -552,7 +552,7 @@ function renderGoals() {
                 <input type="month" class="goal-month-input" value="${escapeHtml(g.month || '')}" data-gact="set-month" aria-label="Goal month" />
                 <button class="goal-card-del" data-gact="delete-goal" aria-label="Delete goal"><i data-lucide="x"></i></button>
             </header>
-            <h3 class="goal-card-title">${escapeHtml(g.text)}</h3>
+            <h3 class="goal-card-title" contenteditable="true" data-gact="edit-title" spellcheck="false">${escapeHtml(g.text)}</h3>
             <ul class="goal-list">${rows}</ul>
             <form class="goal-add-form" data-goal-id="${g.id}" autocomplete="off">
                 <span class="goal-add-icon"><i data-lucide="plus"></i></span>
@@ -630,6 +630,31 @@ function wireGoalEvents() {
             } else if (act === 'delete-ms') {
                 goal.milestones = goal.milestones.filter(x => x.id !== msId);
                 saveGoals(); renderGoals(); refreshIcons();
+            }
+        });
+
+        grid.addEventListener('blur', e => {
+            const el = e.target.closest('[data-gact="edit-title"]');
+            if (!el) return;
+            const card = el.closest('[data-goal-id]');
+            if (!card) return;
+            const goal = state.goals.threeMonth.find(g => g.id === card.dataset.goalId);
+            if (!goal) return;
+            const text = el.textContent.trim();
+            if (!text) { el.textContent = goal.text; return; }
+            goal.text = text;
+            saveGoals();
+        }, true);
+
+        grid.addEventListener('keydown', e => {
+            const el = e.target.closest('[data-gact="edit-title"]');
+            if (!el) return;
+            if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+            if (e.key === 'Escape') {
+                const card = el.closest('[data-goal-id]');
+                const goal = state.goals.threeMonth.find(g => g.id === card?.dataset.goalId);
+                if (goal) el.textContent = goal.text;
+                el.blur();
             }
         });
 
