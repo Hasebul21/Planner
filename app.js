@@ -435,6 +435,10 @@ function nowYearMonth() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
+function blankGoal() {
+    return { id: uid(), month: nowYearMonth(), text: 'New goal', milestones: [], created: Date.now() };
+}
+
 function defaultGoals() {
     const month = nowYearMonth();
     return {
@@ -459,6 +463,12 @@ function defaultGoals() {
                 ],
                 created: Date.now(),
             },
+            {
+                id: uid(), month,
+                text: 'New goal',
+                milestones: [],
+                created: Date.now(),
+            },
         ],
         weekPlan: { weekStart: null, days: [] },
     };
@@ -469,15 +479,19 @@ function migrateGoals(raw) {
     if (Array.isArray(raw)) return defaultGoals();
     if (!raw || typeof raw !== 'object') return defaultGoals();
     const out = {
-        threeMonth: Array.isArray(raw.threeMonth) ? raw.threeMonth.map(g => ({
-            id: g.id || uid(),
-            month: g.month || nowYearMonth(),
-            text: String(g.text || ''),
-            milestones: Array.isArray(g.milestones) ? g.milestones.map(m => ({
-                id: m.id || uid(), text: String(m.text || ''), done: !!m.done,
-            })) : [],
-            created: g.created || Date.now(),
-        })) : defaultGoals().threeMonth,
+        threeMonth: (() => {
+            const src = Array.isArray(raw.threeMonth) ? raw.threeMonth.map(g => ({
+                id: g.id || uid(),
+                month: g.month || nowYearMonth(),
+                text: String(g.text || ''),
+                milestones: Array.isArray(g.milestones) ? g.milestones.map(m => ({
+                    id: m.id || uid(), text: String(m.text || ''), done: !!m.done,
+                })) : [],
+                created: g.created || Date.now(),
+            })) : defaultGoals().threeMonth;
+            while (src.length < 3) src.push(blankGoal());
+            return src.slice(0, 3);
+        })(),
         weekPlan: (raw.weekPlan && typeof raw.weekPlan === 'object')
             ? { weekStart: raw.weekPlan.weekStart || null, days: Array.isArray(raw.weekPlan.days) ? raw.weekPlan.days : [] }
             : { weekStart: null, days: [] },
@@ -550,7 +564,6 @@ function renderGoals() {
         <section class="goal-card" data-goal-id="${g.id}">
             <header class="goal-card-head">
                 <input type="month" class="goal-month-input" value="${escapeHtml(g.month || '')}" data-gact="set-month" aria-label="Goal month" />
-                <button class="goal-card-del" data-gact="delete-goal" aria-label="Delete goal"><i data-lucide="x"></i></button>
             </header>
             <h3 class="goal-card-title" contenteditable="true" data-gact="edit-title" spellcheck="false">${escapeHtml(g.text)}</h3>
             <ul class="goal-list">${rows}</ul>
@@ -614,12 +627,6 @@ function wireGoalEvents() {
             if (!goal) return;
             const act = e.target.closest('[data-gact]')?.dataset.gact;
             if (!act) return;
-
-            if (act === 'delete-goal') {
-                state.goals.threeMonth = state.goals.threeMonth.filter(g => g.id !== goalId);
-                saveGoals(); renderGoals(); refreshIcons();
-                return;
-            }
 
             const li = e.target.closest('[data-ms-id]');
             if (!li) return;
@@ -716,23 +723,6 @@ function wireGoalEvents() {
         });
     }
 
-    const quickForm = $('#goalsQuickAddForm');
-    if (quickForm && !quickForm.dataset.bound) {
-        quickForm.dataset.bound = 'true';
-        quickForm.addEventListener('submit', e => {
-            e.preventDefault();
-            const input = $('#goalsQuickAddInput');
-            const text = input?.value.trim();
-            if (!text) return;
-            state.goals.threeMonth = state.goals.threeMonth || [];
-            state.goals.threeMonth.push({
-                id: uid(), month: nowYearMonth(), text,
-                milestones: [], created: Date.now(),
-            });
-            saveGoals(); renderGoals(); refreshIcons();
-            if (input) { input.value = ''; input.focus(); }
-        });
-    }
 }
 
 function taskTemplate(t) {
