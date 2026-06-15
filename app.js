@@ -528,11 +528,6 @@ function renderGoals() {
     if (!grid) return;
     ensureWeekPlan();
 
-    const titleEl = $('#goalsPlanTitle');
-    const rangeEl = $('#goalsPlanRange');
-    if (titleEl) titleEl.textContent = 'Goals & Plan';
-    if (rangeEl) rangeEl.textContent = 'Quarterly milestones and your day-by-day plan for the next two months.';
-
     const goals = state.goals.threeMonth || [];
     const allMs = goals.reduce((acc, g) => acc.concat(g.milestones || []), []);
     const totalDone = allMs.filter(m => m.done).length;
@@ -1190,9 +1185,6 @@ applyTweaks();
 wireEvents();
 wireGoalEvents();
 renderAll();
-
-// Show gate immediately — Firebase will call onAuthChange once it resolves
-showAuthGate();
 
 // Avatar → sign-in modal (only when already signed in)
 $('#avatarBtn').addEventListener('click', openAuthModal);
