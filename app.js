@@ -606,7 +606,7 @@ function renderWeekPlan() {
         <article class="week-card">
             <header class="week-card-head">
                 <div>
-                    <h3 class="week-card-title">This week</h3>
+                    <h3 class="week-card-title">Week</h3>
                     <div class="week-card-range">${escapeHtml(range)}</div>
                 </div>
                 <span class="week-card-count">${done}/${days.length}</span>
