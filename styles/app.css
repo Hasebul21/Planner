@@ -1613,157 +1613,88 @@
 }
 
 /* ===== Week plan ===== */
-.week-plan {
-    display: flex;
-    flex-direction: column;
+/* ── Week cards (3-column todo lists) ── */
+
+.week-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
 }
 
-.week-card {
+.wk-card {
     background: var(--card);
-    border: 1px solid var(--acc);
+    border: 1px solid var(--line-soft);
     border-radius: var(--rad);
-    padding: 26px 28px 24px;
+    padding: 20px 20px 16px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 0;
+    min-height: 160px;
 }
 
-.week-card-head {
+.wk-item-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.wk-item {
     display: flex;
     align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line-soft);
 }
 
-.week-card-title {
-    font-family: 'Newsreader', 'Cormorant Garamond', Georgia, serif;
-    font-style: normal;
-    font-weight: 700;
-    font-size: 1.7rem;
-    color: var(--acc);
-    line-height: 1.1;
-    margin: 0;
-    letter-spacing: -0.01em;
+.wk-item:last-child {
+    border-bottom: none;
 }
 
-.week-card-range {
-    font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-    font-size: 13px;
-    color: var(--fg-faint);
-    margin-top: 6px;
-    letter-spacing: 0.02em;
-    font-variant-numeric: tabular-nums;
-}
-
-.week-card-count {
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+.wk-item-text {
+    font-family: var(--font-body);
     font-size: 14px;
-    font-weight: 600;
-    color: var(--fg-muted);
-    font-variant-numeric: tabular-nums;
-}
-
-.week-card-divider {
-    height: 1px;
-    background: var(--line-soft);
-    margin: 0;
-}
-
-.week-day-grid {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 14px;
-}
-
-.week-day {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 16px 16px 18px;
-    border-radius: 14px;
-    background: var(--bg);
-    border: 1px solid transparent;
-    min-height: 150px;
-    transition: background 160ms ease, border-color 160ms ease;
-}
-
-.week-day:hover {
-    border-color: var(--line);
-}
-
-.week-day-head {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.week-day-dow {
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
+    font-weight: 450;
     color: var(--fg);
-    letter-spacing: 0;
+    line-height: 1.4;
+    word-break: break-word;
+    flex: 1;
+    padding-top: 1px;
 }
 
-.week-day-date {
-    font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-    font-size: 12px;
-    color: var(--fg-faint);
-    font-variant-numeric: tabular-nums;
-    margin-top: 2px;
-    margin-bottom: 8px;
-}
-
-.week-day .goal-check {
-    width: 18px;
-    height: 18px;
-    border-radius: 6px;
-    border-width: 1.5px;
-}
-
-.week-day .goal-check svg {
-    width: 11px;
-    height: 11px;
-}
-
-.week-day.is-done .goal-check {
+.wk-item.is-done .goal-check {
     background: var(--acc);
     border-color: var(--acc);
     color: var(--acc-ink);
 }
 
-.week-day-plan {
-    font-family: 'Newsreader', 'Cormorant Garamond', Georgia, serif;
-    font-size: 15px;
-    line-height: 1.4;
-    color: var(--fg);
-    background: transparent;
-    border: 0;
-    outline: 0;
-    padding: 4px 0;
-    resize: none;
-    width: 100%;
-    flex: 1;
-    word-break: break-word;
-    font-weight: 500;
-}
-
-.week-day-plan::placeholder {
-    color: var(--fg-faint);
-    font-style: italic;
-}
-
-.week-day.is-done .week-day-plan {
+.wk-item.is-done .wk-item-text {
     color: var(--fg-faint);
     text-decoration: line-through;
     text-decoration-color: var(--fg-faint);
 }
 
-@media (max-width: 1100px) {
-    .week-day-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
+.wk-add-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.wk-add-input {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--fg);
+    background: transparent;
+    border: 0;
+    outline: 0;
+    padding: 0;
+}
+
+.wk-add-input::placeholder {
+    color: var(--fg-faint);
 }
 
 @media (max-width: 900px) {
@@ -1788,8 +1719,8 @@
         padding: 18px 18px 16px;
     }
 
-    .week-day-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .week-cards-grid {
+        grid-template-columns: 1fr;
     }
 
     .goals-quick-add {

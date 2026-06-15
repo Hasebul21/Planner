@@ -470,7 +470,11 @@ function defaultGoals() {
                 created: Date.now(),
             },
         ],
-        weekPlan: { weekStart: null, days: [] },
+        weekCards: [
+            { id: uid(), items: [] },
+            { id: uid(), items: [] },
+            { id: uid(), items: [] },
+        ],
     };
 }
 
@@ -492,43 +496,26 @@ function migrateGoals(raw) {
             while (src.length < 3) src.push(blankGoal());
             return src.slice(0, 3);
         })(),
-        weekPlan: (raw.weekPlan && typeof raw.weekPlan === 'object')
-            ? { weekStart: raw.weekPlan.weekStart || null, days: Array.isArray(raw.weekPlan.days) ? raw.weekPlan.days : [] }
-            : { weekStart: null, days: [] },
+        weekCards: (() => {
+            const src = Array.isArray(raw.weekCards) ? raw.weekCards.map(c => ({
+                id: c.id || uid(),
+                items: Array.isArray(c.items) ? c.items.map(it => ({
+                    id: it.id || uid(), text: String(it.text || ''), done: !!it.done,
+                })) : [],
+            })) : [];
+            while (src.length < 3) src.push({ id: uid(), items: [] });
+            return src.slice(0, 3);
+        })(),
     };
     return out;
 }
 
-function startOfWeekMonday(d) {
-    const r = new Date(d);
-    const day = r.getDay(); // 0=Sun..6=Sat
-    const diff = day === 0 ? -6 : 1 - day;
-    r.setDate(r.getDate() + diff);
-    r.setHours(0, 0, 0, 0);
-    return r;
-}
-
-function ensureWeekPlan() {
-    const monday = startOfWeekMonday(new Date());
-    const wkStart = isoDate(monday);
-    const wp = state.goals.weekPlan || { weekStart: null, days: [] };
-    if (wp.weekStart === wkStart && Array.isArray(wp.days) && wp.days.length === 7) return;
-    const dows = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-        const dt = addDays(monday, i);
-        const iso = isoDate(dt);
-        const existing = wp.days?.find(d => d.iso === iso);
-        days.push({
-            id: existing?.id || uid(),
-            iso,
-            dow: dows[i],
-            date: dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-            plan: existing?.plan || '',
-            done: !!existing?.done,
-        });
+function ensureWeekCards() {
+    if (!Array.isArray(state.goals.weekCards) || state.goals.weekCards.length < 3) {
+        const existing = Array.isArray(state.goals.weekCards) ? state.goals.weekCards : [];
+        while (existing.length < 3) existing.push({ id: uid(), items: [] });
+        state.goals.weekCards = existing.slice(0, 3);
     }
-    state.goals.weekPlan = { weekStart: wkStart, days };
 }
 
 function goalMonthInfo(offset) {
@@ -543,7 +530,7 @@ function goalMonthInfo(offset) {
 function renderGoals() {
     const grid = $('#goalsGrid');
     if (!grid) return;
-    ensureWeekPlan();
+    ensureWeekCards();
 
     const goals = state.goals.threeMonth || [];
 
@@ -574,44 +561,28 @@ function renderGoals() {
         </section>`;
     }).join('');
 
-    renderWeekPlan();
+    renderWeekCards();
 }
 
-function renderWeekPlan() {
+function renderWeekCards() {
     const host = $('#weekPlan');
     if (!host) return;
-    const wp = state.goals.weekPlan;
-    if (!wp) { host.innerHTML = ''; return; }
-    const days = wp.days || [];
-    const done = days.filter(d => d.done).length;
-    const first = days[0]?.date || '';
-    const last = days[days.length - 1]?.date || '';
-    const range = first && last ? `${first} – ${last}` : '';
-
-    const dayCells = days.map(d => `
-        <div class="week-day ${d.done ? 'is-done' : ''}" data-day-iso="${d.iso}">
-            <div class="week-day-head">
-                <button class="goal-check" data-wact="toggle-day" aria-label="Toggle day done">
-                    <i data-lucide="check"></i>
-                </button>
-                <span class="week-day-dow">${escapeHtml(d.dow)}</span>
-            </div>
-            <span class="week-day-date">${escapeHtml(d.date)}</span>
-            <textarea class="week-day-plan" data-wact="edit-plan" rows="2" placeholder="No plan" maxlength="160">${escapeHtml(d.plan || '')}</textarea>
-        </div>`).join('');
-
-    host.innerHTML = `
-        <article class="week-card">
-            <header class="week-card-head">
-                <div>
-                    <h3 class="week-card-title">Week</h3>
-                    <div class="week-card-range">${escapeHtml(range)}</div>
-                </div>
-                <span class="week-card-count">${done}/${days.length}</span>
-            </header>
-            <div class="week-card-divider"></div>
-            <div class="week-day-grid">${dayCells}</div>
-        </article>`;
+    const cards = state.goals.weekCards || [];
+    host.innerHTML = `<div class="week-cards-grid">${cards.map(c => {
+        const rows = c.items.map(it => `
+            <li class="wk-item ${it.done ? 'is-done' : ''}" data-wi-id="${it.id}" data-wc-id="${c.id}">
+                <button class="goal-check" data-wwact="toggle-wi" aria-label="Toggle"><i data-lucide="check"></i></button>
+                <span class="wk-item-text">${escapeHtml(it.text)}</span>
+            </li>`).join('');
+        return `
+        <section class="wk-card" data-wc-id="${c.id}">
+            <ul class="wk-item-list">${rows}</ul>
+            <form class="wk-add-form" data-wc-id="${c.id}" autocomplete="off">
+                <span class="goal-add-icon"><i data-lucide="plus"></i></span>
+                <input type="text" class="wk-add-input" maxlength="200" placeholder="Add a task…" />
+            </form>
+        </section>`;
+    }).join('')}</div>`;
 }
 
 function wireGoalEvents() {
@@ -698,28 +669,33 @@ function wireGoalEvents() {
         week.dataset.bound = 'true';
 
         week.addEventListener('click', e => {
-            const cell = e.target.closest('[data-day-iso]');
-            if (!cell) return;
-            const act = e.target.closest('[data-wact]')?.dataset.wact;
-            if (act !== 'toggle-day') return;
-            const iso = cell.dataset.dayIso;
-            const d = state.goals.weekPlan?.days?.find(x => x.iso === iso);
-            if (!d) return;
-            d.done = !d.done;
-            saveGoals(); renderWeekPlan(); refreshIcons();
+            const li = e.target.closest('[data-wi-id]');
+            if (!li) return;
+            const act = e.target.closest('[data-wwact]')?.dataset.wwact;
+            if (act !== 'toggle-wi') return;
+            const wcId = li.dataset.wcId;
+            const wiId = li.dataset.wiId;
+            const card = state.goals.weekCards?.find(c => c.id === wcId);
+            const item = card?.items.find(it => it.id === wiId);
+            if (!item) return;
+            item.done = !item.done;
+            saveGoals(); renderWeekCards(); refreshIcons();
         });
 
-        let planTimer;
-        week.addEventListener('input', e => {
-            const ta = e.target.closest('.week-day-plan');
-            if (!ta) return;
-            const cell = ta.closest('[data-day-iso]');
-            const iso = cell?.dataset.dayIso;
-            const d = state.goals.weekPlan?.days?.find(x => x.iso === iso);
-            if (!d) return;
-            d.plan = ta.value;
-            clearTimeout(planTimer);
-            planTimer = setTimeout(saveGoals, 300);
+        week.addEventListener('submit', e => {
+            const form = e.target.closest('.wk-add-form');
+            if (!form) return;
+            e.preventDefault();
+            const wcId = form.dataset.wcId;
+            const card = state.goals.weekCards?.find(c => c.id === wcId);
+            if (!card) return;
+            const input = form.querySelector('.wk-add-input');
+            const text = input?.value.trim();
+            if (!text) return;
+            card.items.push({ id: uid(), text, done: false });
+            saveGoals(); renderWeekCards(); refreshIcons();
+            const newInput = document.querySelector(`.wk-add-form[data-wc-id="${wcId}"] .wk-add-input`);
+            newInput?.focus();
         });
     }
 
