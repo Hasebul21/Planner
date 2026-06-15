@@ -430,13 +430,17 @@ function renderTodo() {
 }
 
 // ============== GOALS ==============
+function nowYearMonth() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
 function defaultGoals() {
-    const now = new Date();
-    const stamp = now.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+    const month = nowYearMonth();
     return {
         threeMonth: [
             {
-                id: uid(), tag: 'Platform', target: stamp,
+                id: uid(), month,
                 text: 'Cut average deploy time under 10 minutes',
                 milestones: [
                     { id: uid(), text: 'Parallelize the CI pipeline', done: true },
@@ -446,7 +450,7 @@ function defaultGoals() {
                 created: Date.now(),
             },
             {
-                id: uid(), tag: 'Craft', target: stamp,
+                id: uid(), month,
                 text: 'Establish the architecture guild',
                 milestones: [
                     { id: uid(), text: 'Write the charter', done: true },
@@ -467,8 +471,7 @@ function migrateGoals(raw) {
     const out = {
         threeMonth: Array.isArray(raw.threeMonth) ? raw.threeMonth.map(g => ({
             id: g.id || uid(),
-            tag: g.tag || 'Platform',
-            target: g.target || '',
+            month: g.month || nowYearMonth(),
             text: String(g.text || ''),
             milestones: Array.isArray(g.milestones) ? g.milestones.map(m => ({
                 id: m.id || uid(), text: String(m.text || ''), done: !!m.done,
@@ -546,15 +549,14 @@ function renderGoals() {
         return `
         <section class="goal-card" data-goal-id="${g.id}">
             <header class="goal-card-head">
-                <span class="goal-badge">${escapeHtml(g.tag || 'Platform')}</span>
-                <span class="goal-stamp"><i data-lucide="flag"></i>${escapeHtml(g.target || '')}</span>
+                <input type="month" class="goal-month-input" value="${escapeHtml(g.month || '')}" data-gact="set-month" aria-label="Goal month" />
                 <button class="goal-card-del" data-gact="delete-goal" aria-label="Delete goal"><i data-lucide="x"></i></button>
             </header>
             <h3 class="goal-card-title">${escapeHtml(g.text)}</h3>
             <ul class="goal-list">${rows}</ul>
             <form class="goal-add-form" data-goal-id="${g.id}" autocomplete="off">
-                <i data-lucide="plus"></i>
-                <input type="text" class="goal-add-input" maxlength="200" placeholder="Add a milestone" />
+                <span class="goal-add-icon"><i data-lucide="plus"></i></span>
+                <input type="text" class="goal-add-input" maxlength="200" placeholder="Add a milestone…" />
             </form>
         </section>`;
     }).join('');
@@ -631,6 +633,17 @@ function wireGoalEvents() {
             }
         });
 
+        grid.addEventListener('change', e => {
+            const input = e.target.closest('.goal-month-input');
+            if (!input) return;
+            const card = input.closest('[data-goal-id]');
+            if (!card) return;
+            const goal = state.goals.threeMonth.find(g => g.id === card.dataset.goalId);
+            if (!goal) return;
+            goal.month = input.value;
+            saveGoals();
+        });
+
         grid.addEventListener('submit', e => {
             const form = e.target.closest('.goal-add-form');
             if (!form) return;
@@ -686,13 +699,9 @@ function wireGoalEvents() {
             const input = $('#goalsQuickAddInput');
             const text = input?.value.trim();
             if (!text) return;
-            const stamp = new Date().toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-            const tags = ['Platform', 'Craft', 'Stretch'];
-            const used = (state.goals.threeMonth || []).map(g => g.tag);
-            const tag = tags.find(t => !used.includes(t)) || 'Stretch';
             state.goals.threeMonth = state.goals.threeMonth || [];
             state.goals.threeMonth.push({
-                id: uid(), tag, target: stamp, text,
+                id: uid(), month: nowYearMonth(), text,
                 milestones: [], created: Date.now(),
             });
             saveGoals(); renderGoals(); refreshIcons();
