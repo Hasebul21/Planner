@@ -529,21 +529,9 @@ function renderGoals() {
     ensureWeekPlan();
 
     const goals = state.goals.threeMonth || [];
-    const allMs = goals.reduce((acc, g) => acc.concat(g.milestones || []), []);
-    const totalDone = allMs.filter(m => m.done).length;
-    const totalAll = allMs.length;
-    const pct = totalAll ? Math.round((totalDone / totalAll) * 100) : 0;
-    const pctEl = $('#goalsPct');
-    const fracEl = $('#goalsFrac');
-    const ringEl = $('#goalsRingFill');
-    if (pctEl) pctEl.textContent = `${pct}%`;
-    if (fracEl) fracEl.textContent = `${totalDone}/${totalAll}`;
-    if (ringEl) ringEl.setAttribute('stroke-dasharray', `${pct} ${100 - pct}`);
 
     grid.innerHTML = goals.map(g => {
         const ms = g.milestones || [];
-        const doneCount = ms.filter(m => m.done).length;
-        const cardPct = ms.length ? Math.round((doneCount / ms.length) * 100) : 0;
         const rows = ms.map(m => `
             <li class="goal-item ${m.done ? 'is-done' : ''}" data-ms-id="${m.id}">
                 <button class="goal-check" data-gact="toggle-ms" aria-label="Toggle milestone">
@@ -563,11 +551,6 @@ function renderGoals() {
                 <button class="goal-card-del" data-gact="delete-goal" aria-label="Delete goal"><i data-lucide="x"></i></button>
             </header>
             <h3 class="goal-card-title">${escapeHtml(g.text)}</h3>
-            <div class="goal-progress-row">
-                <span class="goal-progress-label">${doneCount} of ${ms.length} milestones</span>
-                <span class="goal-progress-pct tabular">${cardPct}%</span>
-            </div>
-            <div class="goal-progress-bar" aria-hidden="true"><i style="width:${cardPct}%"></i></div>
             <ul class="goal-list">${rows}</ul>
             <form class="goal-add-form" data-goal-id="${g.id}" autocomplete="off">
                 <i data-lucide="plus"></i>
