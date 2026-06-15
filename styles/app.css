@@ -19,8 +19,8 @@
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
-    gap: 16px;
-    padding: 5px 28px;
+    gap: 12px;
+    padding: 3px 20px;
     background: var(--bg-elev);
     border-bottom: 1px solid var(--line);
 }
@@ -76,18 +76,18 @@
 .tab {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 8px 18px;
+    gap: 6px;
+    padding: 5px 14px;
     border-radius: 999px;
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--fg-muted);
     transition: background 160ms ease, color 160ms ease;
 }
 
 .tab svg {
-    width: 15px;
-    height: 15px;
+    width: 14px;
+    height: 14px;
     color: currentColor;
 }
 
@@ -110,8 +110,8 @@
 }
 
 .appbar-bell {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     border-radius: 999px;
     color: var(--fg-muted);
 }
@@ -122,14 +122,14 @@
 }
 
 .avatar {
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: var(--acc);
     color: var(--acc-ink);
     font-family: var(--font-body);
     font-weight: 600;
-    font-size: 13.5px;
+    font-size: 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -244,7 +244,7 @@
     flex-direction: column;
     gap: 24px;
     position: sticky;
-    top: 68px;
+    top: 52px;
 }
 
 /* ============== CARD (universal surface) ============== */
